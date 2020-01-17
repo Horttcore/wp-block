@@ -30,7 +30,7 @@ abstract class Block implements ServiceContract
      */
     public function getName(): string
     {
-        return apply_filters($this->getName() . '/name', $this->name);
+        return $this->name;
     }
 
     /**
