@@ -19,7 +19,7 @@ abstract class Block implements ServiceContract
         register_block_type(
             $this->getName(),
             [
-                'render_callback' => $this->callback(),
+                'render_callback' => [$this,'callback'],
                 'attributes'      => $this->getAttributes(),
             ]
         );
@@ -48,9 +48,9 @@ abstract class Block implements ServiceContract
     {
         ob_start();
 
-        do_action($this->getName() . '/before', $attributes, $content);
-        apply_filters($this->getName() . '/render', $this->render($attributes, $content));
-        do_action($this->getName() . '/after', $attributes, $content);
+        do_action($this->getName() . '/before', $atts, $content);
+        echo apply_filters($this->getName() . '/render', $this->render($atts, $content), $atts, $content);
+        do_action($this->getName() . '/after', $atts, $content);
 
         return ob_get_clean();
     }
