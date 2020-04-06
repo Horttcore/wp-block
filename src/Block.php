@@ -14,7 +14,7 @@ abstract class Block implements ServiceContract
     /**
      * Register
      */
-    public function register(): void
+    public function register()
     {
         register_block_type(
             $this->getName(),
@@ -58,5 +58,5 @@ abstract class Block implements ServiceContract
     /**
      * Output
      */
-    abstract protected function render(array $atts, string $content): void;
+    abstract protected function render(array $atts, string $content);
 }
