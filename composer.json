@@ -14,6 +14,6 @@
         }
     },
     "require": {
-        "ralfhortt/service-contracts": "^1.0"
+        "ralfhortt/service-contracts": "dev-php72"
     }
 }
