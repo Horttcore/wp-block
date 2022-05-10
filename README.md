@@ -69,9 +69,13 @@ class MyOtherBlock extends Block {
 
 ## Changelog
 
-### v1.1 - 2022-05-10
+### v1.2 - 2022-05-10
 
 - Add support for `block.json`
+- 
+### v1.1 - 2020-05-25
+
+- Apply fixes from StyleCI
 
 ### v1.0 - 2020-01-17
 
