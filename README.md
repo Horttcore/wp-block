@@ -20,7 +20,7 @@ A composer wrapper for ServerSideRender blocks
 use RalfHortt\WPBlock\Block;
 
 class MyBlock extends Block {
-	protected $name = 'ralfhortt/latestEntries';
+	protected $name = 'ralfhortt/myblock';
 	protected $attributes = [
 		'postType' => [
 			'type' => 'string',
@@ -47,6 +47,11 @@ class MyBlock extends Block {
 	}
 }
 
+class MyOtherBlock extends Block {
+	protected $name = 'ralfhortt/myotherblock';
+	protected $blockJson = 'block.json';
+	// …
+}
 ```
 
 ## Hooks
@@ -63,6 +68,10 @@ class MyBlock extends Block {
 - `{$name}/render` - Overwrite render callback
 
 ## Changelog
+
+### v1.1 - 2022-05-10
+
+- Add support for `block.json`
 
 ### v1.0 - 2020-01-17
 
