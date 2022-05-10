@@ -1,4 +1,5 @@
 <?php
+
 namespace RalfHortt\WPBlock;
 
 use RalfHortt\ServiceContracts\ServiceContract;
@@ -21,7 +22,7 @@ abstract class Block implements ServiceContract
      * Register.
      */
     public function register(): void
-    {                
+    {
         $attrs = [];
         if (!$this->hasBlockJson()) {
             $attrs['attributes'] = $this->getAttributes();
@@ -36,7 +37,7 @@ abstract class Block implements ServiceContract
     }
 
     /**
-     * Has block json
+     * Has block json.
      */
     protected function hasBlockJson(): string
     {
@@ -52,7 +53,8 @@ abstract class Block implements ServiceContract
         $path = str_replace(WP_PLUGIN_DIR, '', $path);
         $path = array_filter(explode(DIRECTORY_SEPARATOR, $path));
         $path = array_shift($path);
-        return WP_PLUGIN_DIR . DIRECTORY_SEPARATOR .  $path . DIRECTORY_SEPARATOR . $this->blockJson;
+
+        return WP_PLUGIN_DIR.DIRECTORY_SEPARATOR.$path.DIRECTORY_SEPARATOR.$this->blockJson;
     }
 
     /**
@@ -72,7 +74,7 @@ abstract class Block implements ServiceContract
     }
 
     /**
-     * Register block type args
+     * Register block type args.
      */
     protected function args(): array
     {
