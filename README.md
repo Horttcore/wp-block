@@ -48,8 +48,9 @@ class MyBlock extends Block {
 }
 
 class MyOtherBlock extends Block {
-	protected $name = 'ralfhortt/myotherblock';
-	protected $blockJson = 'block.json';
+	protected string $name = 'ralfhortt/myotherblock';
+	protected string $title = 'My other Block';
+	protected string $blockJson = 'block.json';
 	// …
 }
 ```
