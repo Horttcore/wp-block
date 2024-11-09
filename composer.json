@@ -1,6 +1,6 @@
 {
     "name": "ralfhortt/wp-block",
-    "description": "A composer wrapper for ServerSideRender blocks",
+    "description": "A composer wrapper for registering blocks",
     "license": "GPL-2.0-or-later",
     "authors": [
         {

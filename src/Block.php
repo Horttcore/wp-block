@@ -24,16 +24,22 @@ abstract class Block implements ServiceContract
     public function register(): void
     {
         $attrs = [];
-        if (!$this->hasBlockJson()) {
+        if (! $this->hasBlockJson()) {
             $attrs['attributes'] = $this->getAttributes();
             $attrs['title'] = $this->getTitle();
         }
-        $block = \register_block_type(
-            $this->hasBlockJson() ? $this->getBlockJson() : $this->getName(),
-            array_merge([
-                'render_callback' => [$this, 'callback'],
-            ], $attrs, $this->args()),
-        );
+
+        add_action('init', function () use ($attrs) {
+            if (is_admin()) {
+                return;
+            }
+            \register_block_type(
+                $this->hasBlockJson() ? $this->getBlockJson() : $this->getName(),
+                array_merge([
+                    'render_callback' => [$this, 'callback'],
+                ], $attrs, $this->args()),
+            );
+        });
     }
 
     /**
@@ -49,6 +55,10 @@ abstract class Block implements ServiceContract
      */
     protected function getBlockJson(): string
     {
+        if (str_contains($this->blockJson, WP_PLUGIN_DIR)) {
+            return $this->blockJson;
+        }
+
         $path = plugin_dir_path(__FILE__);
         $path = str_replace(WP_PLUGIN_DIR, '', $path);
         $path = array_filter(explode(DIRECTORY_SEPARATOR, $path));

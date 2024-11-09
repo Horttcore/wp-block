@@ -70,10 +70,14 @@ class MyOtherBlock extends Block {
 
 ## Changelog
 
+### v1.2.1 - 2024-11-09
+
+- Fix regression if wp-block dependencies collide
+
 ### v1.2 - 2022-05-10
 
 - Add support for `block.json`
-- 
+
 ### v1.1 - 2020-05-25
 
 - Apply fixes from StyleCI
