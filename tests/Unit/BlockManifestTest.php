@@ -1,7 +1,7 @@
 <?php
 
-use RalfHortt\WPBlock\BlockManifest;
 use Brain\Monkey\Functions;
+use RalfHortt\WPBlock\BlockManifest;
 
 describe('BlockManifest', function () {
     beforeEach(function () {
@@ -30,7 +30,7 @@ describe('BlockManifest', function () {
         Functions\when('file_exists')
             ->justReturn(false);
 
-        expect(fn() => new BlockManifest('/nonexistent/manifest.json'))
+        expect(fn () => new BlockManifest('/nonexistent/manifest.json'))
             ->toThrow(RuntimeException::class, 'Block manifest file not found: /nonexistent/manifest.json');
     });
 

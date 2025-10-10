@@ -1,15 +1,15 @@
 <?php
+
 namespace RalfHortt\WPBlock;
 
 use RalfHortt\ServiceContracts\ServiceContract;
 
 class BlockManifest implements ServiceContract
 {
-
     public function __construct(protected string $manifestPath, protected ?string $blocksPath = null)
     {
         if (!file_exists($this->manifestPath)) {
-            throw new \RuntimeException('Block manifest file not found: ' . $this->manifestPath);
+            throw new \RuntimeException('Block manifest file not found: '.$this->manifestPath);
         }
 
         if ($this->blocksPath === null) {

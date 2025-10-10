@@ -1,14 +1,13 @@
 <?php
 
 use RalfHortt\WPBlock\Tests\TestBlock;
-use Brain\Monkey\Functions;
 
 describe('Block', function () {
     beforeEach(function () {
         $this->block = new TestBlock([
-            'title' => 'My Test Block',
-            'name' => 'mytest/block',
-            'attributes' => ['color' => 'blue']
+            'title'      => 'My Test Block',
+            'name'       => 'mytest/block',
+            'attributes' => ['color' => 'blue'],
         ]);
     });
 
@@ -30,7 +29,7 @@ describe('Block', function () {
 
     it('returns true when block json is set', function () {
         $blockWithJson = new TestBlock([
-            'blockJson' => 'block.json'
+            'blockJson' => 'block.json',
         ]);
 
         expect($blockWithJson->hasBlockJson())->toBeTrue();
@@ -44,7 +43,7 @@ describe('Block', function () {
 
     it('can register block type with block.json', function () {
         $blockWithJson = new TestBlock([
-            'blockJson' => 'block.json'
+            'blockJson' => 'block.json',
         ]);
 
         $blockWithJson->register();
