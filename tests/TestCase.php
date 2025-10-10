@@ -4,8 +4,6 @@ namespace RalfHortt\WPBlock\Tests;
 
 use Brain\Monkey;
 use Brain\Monkey\Functions;
-use Brain\Monkey\Actions;
-use Brain\Monkey\Filters;
 use PHPUnit\Framework\TestCase as BaseTestCase;
 
 abstract class TestCase extends BaseTestCase
@@ -26,7 +24,7 @@ abstract class TestCase extends BaseTestCase
     }
 
     /**
-     * Set up WordPress environment for testing
+     * Set up WordPress environment for testing.
      */
     protected function setUpWordPress(): void
     {
@@ -48,7 +46,7 @@ abstract class TestCase extends BaseTestCase
     }
 
     /**
-     * Create a test block instance
+     * Create a test block instance.
      */
     protected function createTestBlock(array $properties = []): TestBlock
     {

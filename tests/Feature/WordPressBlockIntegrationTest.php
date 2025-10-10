@@ -1,16 +1,16 @@
 <?php
 
-use RalfHortt\WPBlock\Tests\TestBlock;
-use RalfHortt\WPBlock\BlockManifest;
 use Brain\Monkey\Functions;
+use RalfHortt\WPBlock\BlockManifest;
+use RalfHortt\WPBlock\Tests\TestBlock;
 
 describe('WordPress Block Integration', function () {
     it('can register a block and render output', function () {
         // Create and register block
         $block = new TestBlock([
-            'title' => 'Integration Test Block',
-            'name' => 'integration/test-block',
-            'attributes' => ['testAttr' => 'value']
+            'title'      => 'Integration Test Block',
+            'name'       => 'integration/test-block',
+            'attributes' => ['testAttr' => 'value'],
         ]);
 
         $block->register();
@@ -35,9 +35,9 @@ describe('WordPress Block Integration', function () {
 
     it('handles block with block.json configuration', function () {
         $block = new TestBlock([
-            'title' => 'JSON Block',
-            'name' => 'json/block',
-            'blockJson' => 'block.json'
+            'title'     => 'JSON Block',
+            'name'      => 'json/block',
+            'blockJson' => 'block.json',
         ]);
 
         $block->register();
