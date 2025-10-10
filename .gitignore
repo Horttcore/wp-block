@@ -10,6 +10,7 @@ phpstan-baseline.neon
 /build/
 /coverage/
 .phpunit.result.cache
+.phpunit.cache/
 coverage.xml
 *.coverage
 
