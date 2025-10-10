@@ -1,0 +1,16 @@
+includes:
+    - vendor/szepeviktor/phpstan-wordpress/extension.neon
+
+parameters:
+    level: 8
+    paths:
+        - src
+
+    # Ignore WordPress global functions that PHPStan might not recognize
+    bootstrapFiles:
+        - phpstan-bootstrap.php
+
+    # Ignore missing type hints for arrays and generics
+    ignoreErrors:
+        -
+            identifier: missingType.iterableValue
