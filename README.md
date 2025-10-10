@@ -29,50 +29,7 @@ Use `BlockManifest` when you have a `block.json` file or a manifest that describ
 use RalfHortt\WPBlock\BlockManifest;
 
 // Register blocks from a manifest file
-$manifest = new BlockManifest(
-    manifestPath: __DIR__ . '/build/block-manifest.json',
-    blocksPath: __DIR__ . '/build/blocks'  // Optional: defaults to manifest directory
-);
-
-// Register the service (typically in your plugin's main file)
-$manifest->register();
-```
-
-**Example manifest structure:**
-
-```json
-{
-  "blocks": [
-    {
-      "name": "my-plugin/hero-block",
-      "title": "Hero Block",
-      "category": "widgets",
-      "path": "./hero-block"
-    },
-    {
-      "name": "my-plugin/testimonial-block",
-      "title": "Testimonial Block",
-      "category": "widgets",
-      "path": "./testimonial-block"
-    }
-  ]
-}
-```
-
-**Directory structure example:**
-
-```
-build/
-├── block-manifest.json
-└── blocks/
-    ├── hero-block/
-    │   ├── block.json
-    │   ├── index.js
-    │   └── style.css
-    └── testimonial-block/
-        ├── block.json
-        ├── index.js
-        └── style.css
+(new BlockManifest(__DIR__ . '/build/blocks/block-manifest.json'))->register();
 ```
 
 ### Block Class Examples
@@ -80,38 +37,7 @@ build/
 Use the `Block` class for custom PHP-rendered blocks with full control over the rendering process.
 
 ```php
-<?php
-use RalfHortt\WPBlock\Block;
-
 class MyBlock extends Block {
-	protected $name = 'ralfhortt/myblock';
-	protected $attributes = [
-		'postType' => [
-			'type' => 'string',
-			'default' => '',
-		],
-		// …
-	];
-
-	protected function render($atts, $content): void
-	{
-		$query = new WP_Query([
-			'post_type' => $atts['postType'],
-			'showposts' => 5,
-		]);
-
-		if ( $query->have_posts()) {
-			while ( $query->have_posts() ) {
-				$query->the_post();
-				the_title();
-			}
-		}
-
-		wp_reset_query();
-	}
-}
-
-class MyOtherBlock extends Block {
 	protected string $name = 'ralfhortt/myotherblock';
 	protected string $title = 'My other Block';
 	protected string $blockJson = 'block.json';
@@ -121,9 +47,6 @@ class MyOtherBlock extends Block {
 // Register your blocks (typically in your plugin's main file)
 $myBlock = new MyBlock();
 $myBlock->register();
-
-$myOtherBlock = new MyOtherBlock();
-$myOtherBlock->register();
 ```
 
 ### When to Use Each Approach
@@ -170,7 +93,7 @@ The `BlockManifest` class uses WordPress's native `init` action to register bloc
 
 ### Requirements
 
-- PHP 8.1 or higher
+- PHP 8.3 or higher
 - Composer
 
 ### Testing
