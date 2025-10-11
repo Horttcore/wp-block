@@ -34,8 +34,8 @@
         "mockery/mockery": "^1.6"
     },
     "scripts": {
-        "phpstan": "phpstan analyse --memory-limit=256M",
-        "phpstan-baseline": "phpstan analyse --generate-baseline --memory-limit=256M",
+        "phpstan": "phpstan analyse --memory-limit=512M",
+        "phpstan-baseline": "phpstan analyse --generate-baseline --memory-limit=512M",
         "test": "pest --no-coverage",
         "test:coverage": "pest --coverage",
         "test:watch": "pest --watch",
