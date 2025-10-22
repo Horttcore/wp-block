@@ -1,11 +1,11 @@
 <?php
+
 namespace RalfHortt\WPBlock;
 
 use RalfHortt\ServiceContracts\ServiceContract;
 
-
 /**
- * Pattern Categories Manager
+ * Pattern Categories Manager.
  */
 class BlockPatterns implements ServiceContract
 {
@@ -19,17 +19,17 @@ class BlockPatterns implements ServiceContract
     }
 
     /**
-     * Register hooks
+     * Register hooks.
      */
     public function register(): void
     {
-        add_action('after_setup_theme', function() {
+        add_action('after_setup_theme', function () {
             add_action('init', [$this, 'registerCategories']);
         });
     }
 
     /**
-     * Remove all core block patterns
+     * Remove all core block patterns.
      */
     public function removeCorePatterns(): self
     {
@@ -39,7 +39,7 @@ class BlockPatterns implements ServiceContract
     }
 
     /**
-     * Disable remote block patterns from WordPress.org
+     * Disable remote block patterns from WordPress.org.
      */
     public function disableRemotePatterns(): self
     {
@@ -49,7 +49,7 @@ class BlockPatterns implements ServiceContract
     }
 
     /**
-     * Register categories callback
+     * Register categories callback.
      */
     protected function registerCategories(array $categories = []): void
     {
