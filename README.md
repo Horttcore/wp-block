@@ -29,7 +29,7 @@ Use `BlockManifest` when you have a `block.json` file or a manifest that describ
 use RalfHortt\WPBlock\BlockManifest;
 
 // Register blocks from a manifest file
-(new BlockManifest(__DIR__ . '/build/blocks/block-manifest.json'))->register();
+(new BlockManifest(__DIR__ . '/build/blocks/block-manifest.php'))->register();
 ```
 
 ### Block Class Examples
@@ -64,8 +64,6 @@ $myBlock->register();
 - You're building server-side rendered blocks
 - You want fine-grained control over block behavior
 - You're migrating from legacy shortcode-based solutions
-
-````
 
 ## Hooks
 
@@ -113,7 +111,7 @@ composer phpstan
 
 # Run full CI suite
 composer ci
-````
+```
 
 ### Code Quality
 
@@ -125,6 +123,10 @@ This project uses:
 - **Brain\Monkey** for WordPress function mocking
 
 ## Changelog
+
+### v2.1 - 2025-10-22
+
+- Adding support to register block pattern categories
 
 ### v2.0 - 2025-10-11
 
