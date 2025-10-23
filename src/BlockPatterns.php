@@ -23,7 +23,9 @@ class BlockPatterns implements ServiceContract
      */
     public function register(): void
     {
-        add_action('after_setup_theme', fn () => add_action('init', [$this, 'registerCategories']));
+        add_action('after_setup_theme', function () {
+            add_action('init', [$this, 'registerCategories']);
+        });
     }
 
     /**
