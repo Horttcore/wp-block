@@ -29,7 +29,7 @@ Use `BlockManifest` when you have a `block.json` file or a manifest that describ
 use RalfHortt\WPBlock\BlockManifest;
 
 // Register blocks from a manifest file
-(new BlockManifest(__DIR__ . '/build/blocks/block-manifest.php'))->register();
+(new BlockManifest(__DIR__ . '/build/blocks/blocks-manifest.php'))->register();
 ```
 
 ### Block Class Examples
