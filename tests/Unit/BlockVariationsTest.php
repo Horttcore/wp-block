@@ -1,7 +1,7 @@
 <?php
 
-use RalfHortt\WPBlock\BlockVariations;
 use Brain\Monkey\Functions;
+use RalfHortt\WPBlock\BlockVariations;
 
 describe('BlockVariations', function () {
     beforeEach(function () {
@@ -19,11 +19,11 @@ describe('BlockVariations', function () {
         $variations = [
             'core/image' => [
                 [
-                    'name' => 'test-variation',
-                    'title' => 'Test Variation',
+                    'name'        => 'test-variation',
+                    'title'       => 'Test Variation',
                     'description' => 'A test variation',
-                ]
-            ]
+                ],
+            ],
         ];
 
         $blockVariations = new BlockVariations($variations);
@@ -34,8 +34,8 @@ describe('BlockVariations', function () {
         $blockVariations = new BlockVariations();
 
         $variation = [
-            'name' => 'test-variation',
-            'title' => 'Test Variation',
+            'name'        => 'test-variation',
+            'title'       => 'Test Variation',
             'description' => 'A test variation',
         ];
 
@@ -49,13 +49,13 @@ describe('BlockVariations', function () {
 
         $variations = [
             [
-                'name' => 'variation-1',
+                'name'  => 'variation-1',
                 'title' => 'Variation 1',
             ],
             [
-                'name' => 'variation-2',
+                'name'  => 'variation-2',
                 'title' => 'Variation 2',
-            ]
+            ],
         ];
 
         $result = $blockVariations->addVariations('core/image', $variations);
@@ -67,14 +67,14 @@ describe('BlockVariations', function () {
         $variations = [
             'core/image' => [
                 [
-                    'name' => 'variation-1',
+                    'name'  => 'variation-1',
                     'title' => 'Variation 1',
                 ],
                 [
-                    'name' => 'variation-2',
+                    'name'  => 'variation-2',
                     'title' => 'Variation 2',
-                ]
-            ]
+                ],
+            ],
         ];
 
         $blockVariations = new BlockVariations($variations);
@@ -87,10 +87,10 @@ describe('BlockVariations', function () {
         $variations = [
             'core/image' => [
                 [
-                    'name' => 'variation-1',
+                    'name'  => 'variation-1',
                     'title' => 'Variation 1',
-                ]
-            ]
+                ],
+            ],
         ];
 
         $blockVariations = new BlockVariations($variations);
@@ -110,10 +110,10 @@ describe('BlockVariations', function () {
         $variations = [
             'core/image' => [
                 [
-                    'name' => 'existing-variation',
+                    'name'  => 'existing-variation',
                     'title' => 'Existing Variation',
-                ]
-            ]
+                ],
+            ],
         ];
 
         $blockVariations = new BlockVariations($variations);
@@ -142,11 +142,11 @@ describe('BlockVariations', function () {
         $variations = [
             'core/image' => [
                 [
-                    'name' => 'test-variation',
-                    'title' => 'Test Variation',
+                    'name'        => 'test-variation',
+                    'title'       => 'Test Variation',
                     'description' => 'A test variation',
-                ]
-            ]
+                ],
+            ],
         ];
 
         $blockVariations = new BlockVariations($variations);
@@ -166,10 +166,10 @@ describe('BlockVariations', function () {
         $variations = [
             'core/image' => [
                 [
-                    'name' => 'test-variation',
+                    'name'  => 'test-variation',
                     'title' => 'Test Variation',
-                ]
-            ]
+                ],
+            ],
         ];
 
         $blockVariations = new BlockVariations($variations);
@@ -187,10 +187,10 @@ describe('BlockVariations', function () {
         $variations = [
             'core/image' => [
                 [
-                    'name' => 'custom-variation',
+                    'name'  => 'custom-variation',
                     'title' => 'Custom Variation',
-                ]
-            ]
+                ],
+            ],
         ];
 
         $blockVariations = new BlockVariations($variations);
@@ -199,9 +199,9 @@ describe('BlockVariations', function () {
 
         $existingVariations = [
             [
-                'name' => 'existing-variation',
+                'name'  => 'existing-variation',
                 'title' => 'Existing Variation',
-            ]
+            ],
         ];
 
         $result = $blockVariations->registerBlockVariations($existingVariations, $blockType);
@@ -215,7 +215,7 @@ describe('BlockVariations', function () {
         $variations = [
             'core/image' => [
                 [
-                    'name' => 'valid-variation',
+                    'name'  => 'valid-variation',
                     'title' => 'Valid Variation',
                 ],
                 [
@@ -223,10 +223,10 @@ describe('BlockVariations', function () {
                     'title' => 'Invalid Variation',
                 ],
                 [
-                    'name' => '', // Empty name - invalid
+                    'name'  => '', // Empty name - invalid
                     'title' => 'Another Invalid Variation',
-                ]
-            ]
+                ],
+            ],
         ];
 
         $blockVariations = new BlockVariations($variations);
@@ -245,19 +245,19 @@ describe('BlockVariations', function () {
 
         $result = $blockVariations
             ->addVariation('core/image', [
-                'name' => 'variation-1',
+                'name'  => 'variation-1',
                 'title' => 'Variation 1',
             ])
             ->addVariation('core/image', [
-                'name' => 'variation-2',
+                'name'  => 'variation-2',
                 'title' => 'Variation 2',
             ])
             ->removeVariation('core/image', 'variation-1')
             ->addVariations('core/paragraph', [
                 [
-                    'name' => 'para-variation',
+                    'name'  => 'para-variation',
                     'title' => 'Paragraph Variation',
-                ]
+                ],
             ]);
 
         expect($result)->toBe($blockVariations);
