@@ -38,7 +38,7 @@ class BlockVariations implements ServiceContract
 
         $this->variations[$blockName] = array_filter(
             $this->variations[$blockName],
-            fn($variation) => ($variation['name'] ?? '') !== $variationName
+            fn ($variation) => ($variation['name'] ?? '') !== $variationName
         );
 
         // Remove the block entry if no variations remain
@@ -64,8 +64,9 @@ class BlockVariations implements ServiceContract
     /**
      * Register block variations for a specific block type.
      *
-     * @param array $variations Existing variations for the block type
-     * @param \WP_Block_Type $blockType The block type object
+     * @param array          $variations Existing variations for the block type
+     * @param \WP_Block_Type $blockType  The block type object
+     *
      * @return array The merged variations array
      */
     public function registerBlockVariations(array $variations, $blockType): array
