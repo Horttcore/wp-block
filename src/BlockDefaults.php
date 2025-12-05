@@ -8,7 +8,7 @@ class BlockDefaults implements ServiceContract
 {
     /**
      * Array of block configurations.
-     * Format: ['block-name' => ['attributeName' => value, ...], ...]
+     * Format: ['block-name' => ['attributeName' => value, ...], ...].
      */
     protected array $blockDefaults = [];
 
