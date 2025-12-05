@@ -13,11 +13,12 @@ A composer wrapper for WordPress blocks, block variations, and block patterns
 
 ## Usage
 
-There are three main ways to work with WordPress blocks using this package:
+There are four main ways to work with WordPress blocks using this package:
 
 1. **BlockManifest** - For registering multiple blocks from a manifest file (recommended for modern block development)
 2. **Block** - For programmatic block registration with custom PHP rendering
 3. **BlockVariations** - For registering block variations to extend existing blocks
+4. **BlockDefaults** - For overriding default attribute values of blocks
 
 ## Examples
 
@@ -166,6 +167,91 @@ $blockVariations->addVariation('core/paragraph', [
 $blockVariations->register();
 ```
 
+### BlockDefaults Examples
+
+Use `BlockDefaults` to override default attribute values for blocks. This is useful when you want to change the default behavior of existing blocks without creating variations.
+
+#### Basic Usage
+
+```php
+<?php
+use RalfHortt\WPBlock\BlockDefaults;
+
+// Override defaults for a single block
+(new BlockDefaults('core/image', [
+    'sizeSlug' => 'large',
+    'linkDestination' => 'media',
+]))->register();
+```
+
+#### Multiple Blocks
+
+```php
+<?php
+use RalfHortt\WPBlock\BlockDefaults;
+
+// Override defaults for multiple blocks at once
+(new BlockDefaults([
+    'core/image' => [
+        'sizeSlug' => 'large',
+        'linkDestination' => 'media',
+    ],
+    'core/paragraph' => [
+        'fontSize' => 'large',
+    ],
+    'core/heading' => [
+        'level' => 2,
+    ],
+]))->register();
+```
+
+#### Fluent Interface
+
+```php
+<?php
+use RalfHortt\WPBlock\BlockDefaults;
+
+// Build defaults using fluent interface
+(new BlockDefaults('core/image'))
+    ->setAttribute('core/image', 'sizeSlug', 'large')
+    ->setAttribute('core/image', 'linkDestination', 'media')
+    ->addBlock('core/paragraph', ['fontSize' => 'large'])
+    ->setAttributes('core/heading', [
+        'level' => 2,
+        'fontSize' => 'medium',
+    ])
+    ->register();
+```
+
+#### Managing Block Defaults
+
+```php
+<?php
+use RalfHortt\WPBlock\BlockDefaults;
+
+$blockDefaults = new BlockDefaults('core/image');
+
+// Set a single attribute default
+$blockDefaults->setAttribute('core/image', 'sizeSlug', 'large');
+
+// Set multiple attribute defaults
+$blockDefaults->setAttributes('core/image', [
+    'sizeSlug' => 'large',
+    'linkDestination' => 'media',
+]);
+
+// Add a new block with defaults
+$blockDefaults->addBlock('core/paragraph', ['fontSize' => 'large']);
+
+// Get all defaults
+$allDefaults = $blockDefaults->getDefaults();
+
+// Get defaults for a specific block
+$imageDefaults = $blockDefaults->getBlockDefaults('core/image');
+
+$blockDefaults->register();
+```
+
 ### When to Use Each Approach
 
 **Use BlockManifest when:**
@@ -188,6 +274,13 @@ $blockVariations->register();
 - You need to create themed versions of core blocks
 - You want to simplify block selection for content editors
 - You're extending blocks without creating entirely new block types
+
+**Use BlockDefaults when:**
+
+- You want to change the default values of block attributes globally
+- You need to set consistent defaults across your site
+- You want to override defaults without creating block variations
+- You're working with existing blocks (core or third-party)
 
 ## Hooks
 
@@ -233,6 +326,12 @@ Each variation can include the following properties:
 - `scope` - Where the variation appears (`['inserter']`, `['block']`, or `['inserter', 'block']`)
 - `isDefault` - Whether this variation is the default for the block type
 
+### BlockDefaults Hooks
+
+The `BlockDefaults` class uses WordPress's native `block_type_metadata` filter to override attribute defaults before block registration.
+
+- `block_type_metadata` - Filter used internally by BlockDefaults to override default attribute values
+
 ## Development
 
 ### Requirements
@@ -269,6 +368,13 @@ This project uses:
 - **Brain\Monkey** for WordPress function mocking
 
 ## Changelog
+
+### v2.3 - 2025-12-05
+
+- Adding support for block attribute defaults override with `BlockDefaults` class
+- Support for single and multiple blocks in one instance
+- Fluent interface for flexible attribute management
+- Override defaults using WordPress `block_type_metadata` filter
 
 ### v2.2 - 2025-11-02
 
