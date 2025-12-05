@@ -88,7 +88,7 @@ describe('BlockDefaults', function () {
         it('sets multiple attributes for a block', function () {
             $this->blockDefaults->setAttributes('test/block', [
                 'color' => 'red',
-                'size' => 'large',
+                'size'  => 'large',
             ]);
 
             $defaults = $this->blockDefaults->getBlockDefaults('test/block');
@@ -149,10 +149,10 @@ describe('BlockDefaults', function () {
             $this->blockDefaults->setAttribute('test/block', 'color', 'red');
 
             $metadata = [
-                'name' => 'test/block',
+                'name'       => 'test/block',
                 'attributes' => [
                     'color' => [
-                        'type' => 'string',
+                        'type'    => 'string',
                         'default' => 'blue',
                     ],
                 ],
@@ -165,10 +165,10 @@ describe('BlockDefaults', function () {
 
         it('ignores metadata for non-configured blocks', function () {
             $metadata = [
-                'name' => 'test/other',
+                'name'       => 'test/other',
                 'attributes' => [
                     'color' => [
-                        'type' => 'string',
+                        'type'    => 'string',
                         'default' => 'blue',
                     ],
                 ],
@@ -193,15 +193,15 @@ describe('BlockDefaults', function () {
 
         it('only overrides attributes that exist in metadata', function () {
             $this->blockDefaults->setAttributes('test/block', [
-                'color' => 'red',
+                'color'       => 'red',
                 'nonexistent' => 'value',
             ]);
 
             $metadata = [
-                'name' => 'test/block',
+                'name'       => 'test/block',
                 'attributes' => [
                     'color' => [
-                        'type' => 'string',
+                        'type'    => 'string',
                         'default' => 'blue',
                     ],
                 ],
@@ -217,7 +217,7 @@ describe('BlockDefaults', function () {
             $metadata = [
                 'attributes' => [
                     'color' => [
-                        'type' => 'string',
+                        'type'    => 'string',
                         'default' => 'blue',
                     ],
                 ],
