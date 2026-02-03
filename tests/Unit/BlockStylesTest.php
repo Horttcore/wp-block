@@ -19,7 +19,7 @@ describe('BlockStyles', function () {
         $styles = [
             'core/button' => [
                 [
-                    'name' => 'custom-style',
+                    'name'  => 'custom-style',
                     'label' => 'Custom Style',
                 ],
             ],
@@ -33,7 +33,7 @@ describe('BlockStyles', function () {
         $blockStyles = new BlockStyles();
 
         $style = [
-            'name' => 'custom-style',
+            'name'  => 'custom-style',
             'label' => 'Custom Style',
         ];
 
@@ -47,11 +47,11 @@ describe('BlockStyles', function () {
 
         $styles = [
             [
-                'name' => 'style-1',
+                'name'  => 'style-1',
                 'label' => 'Style 1',
             ],
             [
-                'name' => 'style-2',
+                'name'  => 'style-2',
                 'label' => 'Style 2',
             ],
         ];
@@ -102,18 +102,18 @@ describe('BlockStyles', function () {
         $blockStyles->removeStyle('core/button', 'outline');
 
         $metadata = [
-            'name' => 'core/button',
+            'name'   => 'core/button',
             'styles' => [
                 [
-                    'name' => 'default',
+                    'name'  => 'default',
                     'label' => 'Default',
                 ],
                 [
-                    'name' => 'outline',
+                    'name'  => 'outline',
                     'label' => 'Outline',
                 ],
                 [
-                    'name' => 'fill',
+                    'name'  => 'fill',
                     'label' => 'Fill',
                 ],
             ],
@@ -122,7 +122,7 @@ describe('BlockStyles', function () {
         $result = $blockStyles->filterBlockMetadata($metadata);
 
         expect($result['styles'])->toHaveCount(2);
-        
+
         // Get the filtered styles as array values
         $filteredStyles = array_values($result['styles']);
         expect($filteredStyles[0]['name'])->toBe('default');
@@ -134,14 +134,14 @@ describe('BlockStyles', function () {
         $blockStyles->removeAllStyles('core/button');
 
         $metadata = [
-            'name' => 'core/button',
+            'name'   => 'core/button',
             'styles' => [
                 [
-                    'name' => 'default',
+                    'name'  => 'default',
                     'label' => 'Default',
                 ],
                 [
-                    'name' => 'outline',
+                    'name'  => 'outline',
                     'label' => 'Outline',
                 ],
             ],
@@ -157,10 +157,10 @@ describe('BlockStyles', function () {
         $blockStyles->removeStyle('core/paragraph', 'highlight');
 
         $metadata = [
-            'name' => 'core/button',
+            'name'   => 'core/button',
             'styles' => [
                 [
-                    'name' => 'outline',
+                    'name'  => 'outline',
                     'label' => 'Outline',
                 ],
             ],
@@ -191,7 +191,7 @@ describe('BlockStyles', function () {
             ->removeStyle('core/button', 'outline')
             ->removeStyle('core/button', 'fill')
             ->addStyle('core/image', [
-                'name' => 'custom-rounded',
+                'name'  => 'custom-rounded',
                 'label' => 'Custom Rounded',
             ])
             ->removeAllStyles('core/paragraph');
@@ -205,18 +205,18 @@ describe('BlockStyles', function () {
         $blockStyles->removeStyle('core/button', 'fill');
 
         $metadata = [
-            'name' => 'core/button',
+            'name'   => 'core/button',
             'styles' => [
                 [
-                    'name' => 'default',
+                    'name'  => 'default',
                     'label' => 'Default',
                 ],
                 [
-                    'name' => 'outline',
+                    'name'  => 'outline',
                     'label' => 'Outline',
                 ],
                 [
-                    'name' => 'fill',
+                    'name'  => 'fill',
                     'label' => 'Fill',
                 ],
             ],
@@ -225,7 +225,7 @@ describe('BlockStyles', function () {
         $result = $blockStyles->filterBlockMetadata($metadata);
 
         expect($result['styles'])->toHaveCount(1);
-        
+
         // Get the filtered styles as array values
         $filteredStyles = array_values($result['styles']);
         expect($filteredStyles[0]['name'])->toBe('default');
@@ -236,13 +236,13 @@ describe('BlockStyles', function () {
         $blockStyles->removeStyle('core/button', 'outline');
 
         $metadata = [
-            'name' => 'core/button',
+            'name'   => 'core/button',
             'styles' => [
                 [
                     'label' => 'No Name Style',
                 ],
                 [
-                    'name' => 'outline',
+                    'name'  => 'outline',
                     'label' => 'Outline',
                 ],
             ],
@@ -251,7 +251,7 @@ describe('BlockStyles', function () {
         $result = $blockStyles->filterBlockMetadata($metadata);
 
         expect($result['styles'])->toHaveCount(1);
-        
+
         // Get the filtered styles as array values
         $filteredStyles = array_values($result['styles']);
         expect($filteredStyles[0]['label'])->toBe('No Name Style');
