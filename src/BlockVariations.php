@@ -6,17 +6,19 @@ use RalfHortt\ServiceContracts\ServiceContract;
 
 class BlockVariations implements ServiceContract
 {
-    public function __construct(protected array $variations = [])
+    protected array $variationsToRemove = [];
+
+    public function __construct(protected array $variationsToAdd = [])
     {
     }
 
     public function addVariation(string $blockName, array $variation): self
     {
-        if (!isset($this->variations[$blockName])) {
-            $this->variations[$blockName] = [];
+        if (!isset($this->variationsToAdd[$blockName])) {
+            $this->variationsToAdd[$blockName] = [];
         }
 
-        $this->variations[$blockName][] = $variation;
+        $this->variationsToAdd[$blockName][] = $variation;
 
         return $this;
     }
@@ -32,33 +34,62 @@ class BlockVariations implements ServiceContract
 
     public function removeVariation(string $blockName, string $variationName): self
     {
-        if (!isset($this->variations[$blockName])) {
-            return $this;
+        if (!isset($this->variationsToRemove[$blockName])) {
+            $this->variationsToRemove[$blockName] = [];
         }
 
-        $this->variations[$blockName] = array_filter(
-            $this->variations[$blockName],
-            fn ($variation) => ($variation['name'] ?? '') !== $variationName
-        );
-
-        // Remove the block entry if no variations remain
-        if (empty($this->variations[$blockName])) {
-            unset($this->variations[$blockName]);
-        }
+        $this->variationsToRemove[$blockName][] = $variationName;
 
         return $this;
     }
 
     public function removeAllVariations(string $blockName): self
     {
-        unset($this->variations[$blockName]);
+        $this->variationsToRemove[$blockName] = ['*'];
 
         return $this;
     }
 
     public function register(): void
     {
+        \add_filter('block_type_metadata_settings', [$this, 'filterBlockMetadata']);
         \add_filter('get_block_type_variations', [$this, 'registerBlockVariations'], 10, 2);
+    }
+
+    /**
+     * Filter block metadata to remove core registered variations.
+     *
+     * @param array $metadata The block type metadata
+     *
+     * @return array The filtered metadata
+     */
+    public function filterBlockMetadata(array $metadata): array
+    {
+        $blockName = $metadata['name'] ?? '';
+
+        // Filter out variations from metadata
+        if (isset($this->variationsToRemove[$blockName])) {
+            $toRemove = $this->variationsToRemove[$blockName];
+
+            if (isset($metadata['variations']) && is_array($metadata['variations'])) {
+                $metadata['variations'] = array_filter(
+                    $metadata['variations'],
+                    function ($variation) use ($toRemove) {
+                        $variationName = $variation['name'] ?? '';
+
+                        // If removing all
+                        if (in_array('*', $toRemove)) {
+                            return false;
+                        }
+
+                        // Remove if in the removal list
+                        return !in_array($variationName, $toRemove);
+                    }
+                );
+            }
+        }
+
+        return $metadata;
     }
 
     /**
@@ -71,13 +102,13 @@ class BlockVariations implements ServiceContract
      */
     public function registerBlockVariations(array $variations, $blockType): array
     {
-        // Check if we have variations for this specific block type
-        if (!isset($this->variations[$blockType->name])) {
+        // Check if we have variations to add for this specific block type
+        if (!isset($this->variationsToAdd[$blockType->name])) {
             return $variations;
         }
 
         // Get our variations for this block type
-        $blockVariations = $this->variations[$blockType->name];
+        $blockVariations = $this->variationsToAdd[$blockType->name];
 
         // Filter out invalid variations and merge with existing variations
         foreach ($blockVariations as $variation) {

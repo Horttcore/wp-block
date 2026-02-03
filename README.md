@@ -13,12 +13,13 @@ A composer wrapper for WordPress blocks, block variations, and block patterns
 
 ## Usage
 
-There are four main ways to work with WordPress blocks using this package:
+There are five main ways to work with WordPress blocks using this package:
 
 1. **BlockManifest** - For registering multiple blocks from a manifest file (recommended for modern block development)
 2. **Block** - For programmatic block registration with custom PHP rendering
 3. **BlockVariations** - For registering block variations to extend existing blocks
-4. **BlockDefaults** - For overriding default attribute values of blocks
+4. **BlockStyles** - For removing or adding block styles to existing blocks
+5. **BlockDefaults** - For overriding default attribute values of blocks
 
 ## Examples
 
@@ -167,6 +168,50 @@ $blockVariations->addVariation('core/paragraph', [
 $blockVariations->register();
 ```
 
+### BlockStyles Examples
+
+Use `BlockStyles` to remove block styles from existing blocks. Block styles provide predefined visual variations of blocks without changing their functionality.
+
+⚠️ **Note:** `BlockStyles` is designed primarily for **removing core or third party block styles**. If you want to **add new styles**, use the `styles` property in your block's `theme.json/block.json` file instead.
+
+#### Basic Usage - Removing Styles
+
+```php
+<?php
+use RalfHortt\WPBlock\BlockStyles;
+
+// Remove a core block style
+(new BlockStyles())
+    ->removeStyle('core/button', 'outline')
+    ->register();
+```
+
+#### Removing Multiple Styles
+
+```php
+<?php
+use RalfHortt\WPBlock\BlockStyles;
+
+// Remove multiple styles from different blocks
+(new BlockStyles())
+    ->removeStyle('core/button', 'outline')
+    ->removeStyle('core/button', 'fill')
+    ->removeStyle('core/image', 'rounded')
+    ->register();
+```
+
+#### Removing All Styles
+
+```php
+<?php
+use RalfHortt\WPBlock\BlockStyles;
+
+// Remove all styles from a block type
+(new BlockStyles())
+    ->removeAllStyles('core/button')
+    ->register();
+```
+
 ### BlockDefaults Examples
 
 Use `BlockDefaults` to override default attribute values for blocks. This is useful when you want to change the default behavior of existing blocks without creating variations.
@@ -275,6 +320,13 @@ $blockDefaults->register();
 - You want to simplify block selection for content editors
 - You're extending blocks without creating entirely new block types
 
+**Use BlockStyles when:**
+
+- You want to remove core/third-party block styles from existing blocks
+- You need to customize which style options are available to editors
+- You're removing unwanted default block styles
+- ⚠️ **Do NOT use this for adding styles** — use `theme.json/block.json` instead
+
 **Use BlockDefaults when:**
 
 - You want to change the default values of block attributes globally
@@ -368,6 +420,13 @@ This project uses:
 - **Brain\Monkey** for WordPress function mocking
 
 ## Changelog
+
+### v2.4 - 2026-02-03
+
+- Adding support for block styles with `BlockStyles` class
+- Ability to remove or add block styles to existing blocks
+- Support for fluent interface for style management
+- Full test coverage for block styles
 
 ### v2.3 - 2025-12-05
 
