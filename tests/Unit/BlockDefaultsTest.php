@@ -24,7 +24,7 @@ describe('BlockDefaults', function () {
         it('validates block name has namespace and name', function () {
             expect(fn () => BlockDefaults::for('invalid/'))
                 ->toThrow(\InvalidArgumentException::class);
-            
+
             expect(fn () => BlockDefaults::for('/invalid'))
                 ->toThrow(\InvalidArgumentException::class);
         });
@@ -68,7 +68,7 @@ describe('BlockDefaults', function () {
 
         it('sets value with callback', function () {
             $defaults = BlockDefaults::for('test/block')
-                ->set('color', fn($metadata) => 'dynamic-red');
+                ->set('color', fn ($metadata) => 'dynamic-red');
 
             $callback = $defaults->getDefaults()['test/block']['color'];
             expect($callback)->toBeCallable();
@@ -156,7 +156,7 @@ describe('BlockDefaults', function () {
 
         it('sets callback for all blocks', function () {
             $defaults = BlockDefaults::for(['test/block-one', 'test/block-two'])
-                ->set('color', fn($metadata) => $metadata['name'] === 'test/block-one' ? 'red' : 'blue');
+                ->set('color', fn ($metadata) => $metadata['name'] === 'test/block-one' ? 'red' : 'blue');
 
             $allDefaults = $defaults->getDefaults();
             expect($allDefaults['test/block-one']['color'])->toBeCallable();
@@ -215,7 +215,7 @@ describe('BlockDefaults', function () {
 
         it('can set callback for specific block', function () {
             $defaults = BlockDefaults::for(['test/block-one'])
-                ->set('test/block-two', 'color', fn($metadata) => 'callback-blue');
+                ->set('test/block-two', 'color', fn ($metadata) => 'callback-blue');
 
             $callback = $defaults->getDefaults()['test/block-two']['color'];
             expect($callback)->toBeCallable();
@@ -268,7 +268,7 @@ describe('BlockDefaults', function () {
 
         it('executes callbacks with metadata', function () {
             $defaults = BlockDefaults::for('test/block')
-                ->set('color', fn($metadata) => $metadata['name'] . '-color');
+                ->set('color', fn ($metadata) => $metadata['name'].'-color');
 
             $metadata = [
                 'name'       => 'test/block',
@@ -373,8 +373,9 @@ describe('BlockDefaults', function () {
 
     describe('getFocusedBlocks', function () {
         it('returns empty array when no blocks focused', function () {
-            $defaults = new class extends BlockDefaults {
-                public function __construct() {
+            $defaults = new class() extends BlockDefaults {
+                public function __construct()
+                {
                     // Skip parent constructor
                 }
             };
@@ -404,7 +405,7 @@ describe('BlockDefaults', function () {
 
         it('configures core/media-text with callback for dynamic values', function () {
             $defaults = BlockDefaults::for('core/media-text')
-                ->set('verticalAlignment', fn($metadata) => 'top')
+                ->set('verticalAlignment', fn ($metadata) => 'top')
                 ->register();
 
             $callback = $defaults->getDefaults()['core/media-text']['verticalAlignment'];
@@ -441,18 +442,18 @@ describe('BlockDefaults', function () {
 
         it('uses callback for conditional logic', function () {
             $defaults = BlockDefaults::for('core/image')
-                ->set('sizeSlug', function($metadata) {
+                ->set('sizeSlug', function ($metadata) {
                     // Example: Different sizes based on context
                     return $metadata['customData'] ?? 'large';
                 })
                 ->register();
 
             $metadata = [
-                'name' => 'core/image',
+                'name'       => 'core/image',
                 'customData' => 'thumbnail',
                 'attributes' => [
                     'sizeSlug' => [
-                        'type' => 'string',
+                        'type'    => 'string',
                         'default' => 'medium',
                     ],
                 ],
