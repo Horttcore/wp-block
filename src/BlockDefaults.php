@@ -2,9 +2,7 @@
 
 namespace RalfHortt\WPBlock;
 
-use RalfHortt\ServiceContracts\ServiceContract;
-
-class BlockDefaults implements ServiceContract
+class BlockDefaults
 {
     /**
      * Array of block configurations.
@@ -13,30 +11,212 @@ class BlockDefaults implements ServiceContract
     protected array $blockDefaults = [];
 
     /**
-     * Constructor.
-     *
-     * @param string|array $blockNames The block name(s) or array of block names with their defaults
-     * @param array        $overrides  Array of attributes to override with their new default values (only if blockNames is string)
+     * The currently focused block name(s) (for single-block or multi-block mode).
+     * 
+     * @var array<string>|null
      */
-    public function __construct(string|array $blockNames, array $overrides = [])
+    protected ?array $focusedBlocks = null;
+
+    /**
+     * Private constructor. Use the static for() method instead.
+     *
+     * @param array $blocks Optional array of blocks with their default attributes
+     *                      Format: ['block-name' => ['attributeName' => value, ...], ...]
+     */
+    private function __construct(array $blocks = [])
     {
-        if (is_string($blockNames)) {
-            $this->blockDefaults[$blockNames] = $overrides;
-        } elseif (is_array($blockNames)) {
-            $this->blockDefaults = $blockNames;
+        $this->blockDefaults = $blocks;
+    }
+
+    /**
+     * Create a new BlockDefaults instance.
+     *
+     * @param string|array<string> $blocks Block name(s) to focus on
+     *                                      Single: 'block/name' 
+     *                                      Multiple: ['block/one', 'block/two']
+     * 
+     * @throws \InvalidArgumentException If block name format is invalid
+     */
+    public static function for(string|array $blocks): self
+    {
+        $instance = new self();
+
+        if (is_string($blocks)) {
+            // Single-block mode
+            self::validateBlockName($blocks);
+            $instance->focusedBlocks = [$blocks];
+            $instance->blockDefaults[$blocks] = [];
+        } else {
+            // Multi-block mode: multiple block names
+            foreach ($blocks as $blockName) {
+                if (!is_string($blockName)) {
+                    throw new \InvalidArgumentException('All block names must be strings');
+                }
+                self::validateBlockName($blockName);
+            }
+            
+            $instance->focusedBlocks = $blocks;
+            foreach ($blocks as $blockName) {
+                $instance->blockDefaults[$blockName] = [];
+            }
+        }
+
+        return $instance;
+    }
+
+    /**
+     * Validate block name format.
+     * 
+     * @param string $blockName The block name to validate
+     * 
+     * @throws \InvalidArgumentException If block name format is invalid
+     */
+    private static function validateBlockName(string $blockName): void
+    {
+        if (!str_contains($blockName, '/')) {
+            throw new \InvalidArgumentException(
+                sprintf('Invalid block name "%s". Block names must be in "namespace/name" format.', $blockName)
+            );
+        }
+        
+        $parts = explode('/', $blockName);
+        if (count($parts) !== 2 || empty($parts[0]) || empty($parts[1])) {
+            throw new \InvalidArgumentException(
+                sprintf('Invalid block name "%s". Block names must be in "namespace/name" format.', $blockName)
+            );
         }
     }
 
     /**
      * Register the override by hooking into WordPress.
      */
-    public function register(): void
+    public function register(): self
     {
         add_filter('block_type_metadata', [$this, 'overrideAttributes'], 10, 1);
+        
+        return $this;
+    }
+
+    /**
+     * Set default attributes for block(s).
+     * 
+     * In focused mode (when using ::for('block/name') or ::for(['block/one', 'block/two'])):
+     *   - set('attr', 'value') - Sets attribute for all focused blocks
+     *   - set('attr', fn($metadata) => 'value') - Sets attribute with callback for dynamic values
+     *   - set(['attr' => 'value']) - Sets multiple attributes for all focused blocks
+     * 
+     * In explicit mode:
+     *   - set('block/name', 'attr', 'value') - Sets single attribute for specific block
+     *   - set('block/name', ['attr' => 'value']) - Sets multiple attributes for specific block
+     *
+     * @param string|array $blockOrAttribute Block name or attribute name/array (in focused mode)
+     * @param string|array|callable|null $attributeOrValue Attribute name, attributes array, callback, or value
+     * @param mixed        $value      The default value or callback (only used with block name + attribute name)
+     */
+    public function set(string|array $blockOrAttribute, string|array|callable|null $attributeOrValue = null, mixed $value = null): self
+    {
+        // Detect mode by checking if first parameter is a block name (contains '/')
+        $isExplicitMode = is_string($blockOrAttribute) && str_contains($blockOrAttribute, '/');
+        
+        if ($isExplicitMode) {
+            // Explicit mode - apply to specific block
+            $blockName = $blockOrAttribute;
+            
+            if (!isset($this->blockDefaults[$blockName])) {
+                $this->blockDefaults[$blockName] = [];
+            }
+            
+            if (is_array($attributeOrValue)) {
+                // set('block/name', ['attr' => 'value', ...])
+                $this->blockDefaults[$blockName] = array_merge(
+                    $this->blockDefaults[$blockName],
+                    $attributeOrValue
+                );
+            } elseif (is_string($attributeOrValue)) {
+                // set('block/name', 'attr', 'value')
+                $this->blockDefaults[$blockName][$attributeOrValue] = $value;
+            }
+        } else {
+            // Focused mode - apply to all focused blocks
+            if ($this->focusedBlocks === null) {
+                throw new \LogicException('No blocks focused. Use BlockDefaults::for() first or provide a block name.');
+            }
+            
+            foreach ($this->focusedBlocks as $blockName) {
+                if (is_array($blockOrAttribute)) {
+                    // set(['attr' => 'value', ...])
+                    $this->blockDefaults[$blockName] = array_merge(
+                        $this->blockDefaults[$blockName],
+                        $blockOrAttribute
+                    );
+                } elseif (is_string($blockOrAttribute)) {
+                    // set('attr', 'value')
+                    $this->blockDefaults[$blockName][$blockOrAttribute] = $attributeOrValue;
+                }
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * Remove all defaults for block(s).
+     * 
+     * In focused mode: remove() removes all focused blocks
+     * In explicit mode: remove('block/name') removes specified block
+     *
+     * @param string|null $blockName The block name (optional in focused mode)
+     */
+    public function remove(?string $blockName = null): self
+    {
+        if ($blockName === null && $this->focusedBlocks !== null) {
+            // Remove all focused blocks
+            foreach ($this->focusedBlocks as $block) {
+                unset($this->blockDefaults[$block]);
+            }
+        } elseif ($blockName !== null) {
+            // Remove specific block
+            unset($this->blockDefaults[$blockName]);
+        }
+
+        return $this;
+    }
+
+    /**
+     * Remove a specific attribute default from block(s).
+     * 
+     * In focused mode: removeAttribute('attr') removes from all focused blocks
+     * In explicit mode: removeAttribute('block/name', 'attr') removes from specified block
+     *
+     * @param string      $blockOrAttribute Block name or attribute name (in focused mode)
+     * @param string|null $attributeName    The attribute name (only in explicit mode)
+     */
+    public function removeAttribute(string $blockOrAttribute, ?string $attributeName = null): self
+    {
+        // Detect if first param is a block name (contains '/')
+        if (str_contains($blockOrAttribute, '/')) {
+            // Explicit mode: removeAttribute('block/name', 'attr')
+            if (isset($this->blockDefaults[$blockOrAttribute][$attributeName])) {
+                unset($this->blockDefaults[$blockOrAttribute][$attributeName]);
+            }
+        } else {
+            // Focused mode: removeAttribute('attr')
+            if ($this->focusedBlocks !== null) {
+                foreach ($this->focusedBlocks as $blockName) {
+                    if (isset($this->blockDefaults[$blockName][$blockOrAttribute])) {
+                        unset($this->blockDefaults[$blockName][$blockOrAttribute]);
+                    }
+                }
+            }
+        }
+
+        return $this;
     }
 
     /**
      * Override block attributes.
+     * 
+     * Executes any callbacks with the full metadata for dynamic values.
      *
      * @param array $metadata The block metadata
      *
@@ -52,6 +232,11 @@ class BlockDefaults implements ServiceContract
             if (isset($metadata['attributes']) && is_array($metadata['attributes'])) {
                 foreach ($overrides as $attributeName => $defaultValue) {
                     if (isset($metadata['attributes'][$attributeName])) {
+                        // Execute callback if provided for dynamic values
+                        if (is_callable($defaultValue)) {
+                            $defaultValue = call_user_func($defaultValue, $metadata);
+                        }
+                        
                         $metadata['attributes'][$attributeName]['default'] = $defaultValue;
                     }
                 }
@@ -62,58 +247,9 @@ class BlockDefaults implements ServiceContract
     }
 
     /**
-     * Add a block with default attributes.
-     *
-     * @param string $blockName The block name (e.g., 'namespace/block-name')
-     * @param array  $overrides Array of attributes to override with their new default values
-     */
-    public function addBlock(string $blockName, array $overrides = []): self
-    {
-        $this->blockDefaults[$blockName] = $overrides;
-
-        return $this;
-    }
-
-    /**
-     * Set an attribute override for a specific block.
-     *
-     * @param string $blockName     The block name
-     * @param string $attributeName The attribute name to override
-     * @param mixed  $defaultValue  The new default value
-     */
-    public function setAttribute(string $blockName, string $attributeName, $defaultValue): self
-    {
-        if (!isset($this->blockDefaults[$blockName])) {
-            $this->blockDefaults[$blockName] = [];
-        }
-
-        $this->blockDefaults[$blockName][$attributeName] = $defaultValue;
-
-        return $this;
-    }
-
-    /**
-     * Set multiple attribute overrides for a specific block.
-     *
-     * @param string $blockName The block name
-     * @param array  $overrides Array of attribute names and their new default values
-     */
-    public function setAttributes(string $blockName, array $overrides): self
-    {
-        if (!isset($this->blockDefaults[$blockName])) {
-            $this->blockDefaults[$blockName] = [];
-        }
-
-        $this->blockDefaults[$blockName] = array_merge(
-            $this->blockDefaults[$blockName],
-            $overrides
-        );
-
-        return $this;
-    }
-
-    /**
-     * Get all block defaults.
+     * Get all configured block defaults.
+     * 
+     * @return array All block defaults ['block/name' => ['attr' => value, ...], ...]
      */
     public function getDefaults(): array
     {
@@ -121,12 +257,12 @@ class BlockDefaults implements ServiceContract
     }
 
     /**
-     * Get defaults for a specific block.
-     *
-     * @param string $blockName The block name
+     * Get the currently focused block names.
+     * 
+     * @return array Array of focused block names
      */
-    public function getBlockDefaults(string $blockName): array
+    public function getFocusedBlocks(): array
     {
-        return $this->blockDefaults[$blockName] ?? [];
+        return $this->focusedBlocks ?? [];
     }
 }

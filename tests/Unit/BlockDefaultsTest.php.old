@@ -1,0 +1,519 @@
+<?php
+
+use RalfHortt\WPBlock\BlockDefaults;
+
+describe('BlockDefaults', function () {
+    describe('::for() static factory', function () {
+        it('creates instance for single block', function () {
+            $defaults = BlockDefaults::for('test/block');
+
+            expect($defaults)->toBeInstanceOf(BlockDefaults::class);
+        });
+
+        it('creates instance for multiple blocks', function () {
+            $defaults = BlockDefaults::for(['test/block-one', 'test/block-two']);
+
+            expect($defaults)->toBeInstanceOf(BlockDefaults::class);
+        });
+    });
+
+    describe('single-block mode', function () {
+        it('sets single attribute with set()', function () {
+            $defaults = BlockDefaults::for('test/block')
+                ->set('color', 'red');
+
+            expect($defaults->getBlockDefaults())->toBe(['color' => 'red']);
+        });
+
+        it('sets multiple attributes with array', function () {
+            $defaults = BlockDefaults::for('test/block')
+                ->set(['color' => 'red', 'size' => 'large']);
+
+            expect($defaults->getBlockDefaults())->toBe([
+                'color' => 'red',
+                'size'  => 'large',
+            ]);
+        });
+
+        it('merges multiple set() calls', function () {
+            $defaults = BlockDefaults::for('test/block')
+                ->set('color', 'red')
+                ->set('size', 'large')
+                ->set(['padding' => '10px']);
+
+            expect($defaults->getBlockDefaults())->toBe([
+                'color'   => 'red',
+                'size'    => 'large',
+                'padding' => '10px',
+            ]);
+        });
+
+        it('checks if block has defaults with has()', function () {
+            $defaults = BlockDefaults::for('test/block')
+                ->set('color', 'red');
+
+            expect($defaults->has())->toBeTrue();
+        });
+
+        it('checks attribute existence with hasAttribute()', function () {
+            $defaults = BlockDefaults::for('test/block')
+                ->set('color', 'red');
+
+            expect($defaults->hasAttribute('color'))->toBeTrue();
+            expect($defaults->hasAttribute('size'))->toBeFalse();
+        });
+
+        it('removes attribute with removeAttribute()', function () {
+            $defaults = BlockDefaults::for('test/block')
+                ->set(['color' => 'red', 'size' => 'large'])
+                ->removeAttribute('color');
+
+            expect($defaults->getBlockDefaults())->toBe(['size' => 'large']);
+        });
+
+        it('removes all defaults with remove()', function () {
+            $defaults = BlockDefaults::for('test/block')
+                ->set('color', 'red')
+                ->remove();
+
+            expect($defaults->has())->toBeFalse();
+        });
+
+        it('supports fluent interface with register()', function () {
+            $result = BlockDefaults::for('test/block')
+                ->set('color', 'red')
+                ->register();
+
+            expect($result)->toBeInstanceOf(BlockDefaults::class);
+        });
+    });
+
+    describe('multi-block mode', function () {
+        it('sets single attribute for all blocks', function () {
+            $defaults = BlockDefaults::for(['test/block-one', 'test/block-two'])
+                ->set('color', 'red');
+
+            expect($defaults->getBlockDefaults('test/block-one'))->toBe(['color' => 'red']);
+            expect($defaults->getBlockDefaults('test/block-two'))->toBe(['color' => 'red']);
+        });
+
+        it('sets multiple attributes for all blocks', function () {
+            $defaults = BlockDefaults::for(['test/block-one', 'test/block-two'])
+                ->set(['color' => 'red', 'size' => 'large']);
+
+            expect($defaults->getBlockDefaults('test/block-one'))->toBe([
+                'color' => 'red',
+                'size'  => 'large',
+            ]);
+            expect($defaults->getBlockDefaults('test/block-two'))->toBe([
+                'color' => 'red',
+                'size'  => 'large',
+            ]);
+        });
+
+        it('can chain multiple set() calls', function () {
+            $defaults = BlockDefaults::for(['test/block-one', 'test/block-two'])
+                ->set('color', 'red')
+                ->set('size', 'large');
+
+            expect($defaults->getBlockDefaults('test/block-one'))->toBe([
+                'color' => 'red',
+                'size'  => 'large',
+            ]);
+            expect($defaults->getBlockDefaults('test/block-two'))->toBe([
+                'color' => 'red',
+                'size'  => 'large',
+            ]);
+        });
+
+        it('checks if all blocks have defaults with has()', function () {
+            $defaults = BlockDefaults::for(['test/block-one', 'test/block-two'])
+                ->set('color', 'red');
+
+            expect($defaults->has())->toBeTrue();
+        });
+
+        it('checks if all blocks have attribute with hasAttribute()', function () {
+            $defaults = BlockDefaults::for(['test/block-one', 'test/block-two'])
+                ->set('color', 'red');
+
+            expect($defaults->hasAttribute('color'))->toBeTrue();
+            expect($defaults->hasAttribute('size'))->toBeFalse();
+        });
+
+        it('removes attribute from all blocks', function () {
+            $defaults = BlockDefaults::for(['test/block-one', 'test/block-two'])
+                ->set(['color' => 'red', 'size' => 'large'])
+                ->removeAttribute('color');
+
+            expect($defaults->getBlockDefaults('test/block-one'))->toBe(['size' => 'large']);
+            expect($defaults->getBlockDefaults('test/block-two'))->toBe(['size' => 'large']);
+        });
+
+        it('removes all focused blocks with remove()', function () {
+            $defaults = BlockDefaults::for(['test/block-one', 'test/block-two'])
+                ->set('color', 'red')
+                ->remove();
+
+            expect($defaults->has())->toBeFalse();
+        });
+
+        it('can set different values for specific blocks using explicit mode', function () {
+            $defaults = BlockDefaults::for(['test/block-one', 'test/block-two'])
+                ->set('color', 'red') // Both blocks get 'red'
+                ->set('test/block-one', 'size', 'large'); // Only block-one gets size
+
+            expect($defaults->getBlockDefaults('test/block-one'))->toBe([
+                'color' => 'red',
+                'size'  => 'large',
+            ]);
+            expect($defaults->getBlockDefaults('test/block-two'))->toBe([
+                'color' => 'red',
+            ]);
+        });
+    });
+
+    describe('addBlock', function () {
+        it('adds a new block with defaults', function () {
+            $this->blockDefaults->addBlock('test/block-two', ['padding' => '10px']);
+
+            expect($this->blockDefaults->getBlockDefaults('test/block-two'))->toBe(['padding' => '10px']);
+        });
+
+        it('returns self for method chaining', function () {
+            $result = $this->blockDefaults->addBlock('test/block-two');
+
+            expect($result)->toBe($this->blockDefaults);
+        });
+
+        it('overwrites existing block defaults', function () {
+            $this->blockDefaults->addBlock('test/block', ['color' => 'blue']);
+
+            expect($this->blockDefaults->getBlockDefaults('test/block'))->toBe(['color' => 'blue']);
+        });
+    });
+
+    describe('setAttribute', function () {
+        it('sets an attribute for a block', function () {
+            $this->blockDefaults->setAttribute('test/block', 'color', 'red');
+
+            expect($this->blockDefaults->getBlockDefaults('test/block'))->toHaveKey('color');
+            expect($this->blockDefaults->getBlockDefaults('test/block')['color'])->toBe('red');
+        });
+
+        it('creates block entry if it does not exist', function () {
+            $this->blockDefaults->setAttribute('test/new-block', 'color', 'green');
+
+            expect($this->blockDefaults->getBlockDefaults('test/new-block'))->toHaveKey('color');
+        });
+
+        it('returns self for method chaining', function () {
+            $result = $this->blockDefaults->setAttribute('test/block', 'color', 'red');
+
+            expect($result)->toBe($this->blockDefaults);
+        });
+
+        it('does not overwrite existing attributes', function () {
+            $this->blockDefaults->setAttribute('test/block', 'color', 'red');
+            $this->blockDefaults->setAttribute('test/block', 'size', 'large');
+
+            $defaults = $this->blockDefaults->getBlockDefaults('test/block');
+            expect($defaults)->toHaveKey('color');
+            expect($defaults)->toHaveKey('size');
+            expect($defaults['color'])->toBe('red');
+            expect($defaults['size'])->toBe('large');
+        });
+    });
+
+    describe('setAttributes', function () {
+        it('sets multiple attributes for a block', function () {
+            $this->blockDefaults->setAttributes('test/block', [
+                'color' => 'red',
+                'size'  => 'large',
+            ]);
+
+            $defaults = $this->blockDefaults->getBlockDefaults('test/block');
+            expect($defaults['color'])->toBe('red');
+            expect($defaults['size'])->toBe('large');
+        });
+
+        it('creates block entry if it does not exist', function () {
+            $this->blockDefaults->setAttributes('test/new-block', ['padding' => '10px']);
+
+            expect($this->blockDefaults->getBlockDefaults('test/new-block'))->toHaveKey('padding');
+        });
+
+        it('returns self for method chaining', function () {
+            $result = $this->blockDefaults->setAttributes('test/block', ['color' => 'red']);
+
+            expect($result)->toBe($this->blockDefaults);
+        });
+
+        it('merges with existing attributes', function () {
+            $this->blockDefaults->setAttributes('test/block', ['color' => 'red']);
+            $this->blockDefaults->setAttributes('test/block', ['size' => 'large']);
+
+            $defaults = $this->blockDefaults->getBlockDefaults('test/block');
+            expect($defaults['color'])->toBe('red');
+            expect($defaults['size'])->toBe('large');
+        });
+    });
+
+    describe('getDefaults', function () {
+        it('returns all block defaults', function () {
+            $this->blockDefaults->addBlock('test/block-one', ['color' => 'red']);
+            $this->blockDefaults->addBlock('test/block-two', ['size' => 'large']);
+
+            $allDefaults = $this->blockDefaults->getDefaults();
+
+            expect($allDefaults)->toHaveKey('test/block-one');
+            expect($allDefaults)->toHaveKey('test/block-two');
+            expect($allDefaults['test/block-one'])->toBe(['color' => 'red']);
+            expect($allDefaults['test/block-two'])->toBe(['size' => 'large']);
+        });
+    });
+
+    describe('getBlockDefaults', function () {
+        it('returns defaults for a specific block', function () {
+            $this->blockDefaults->setAttribute('test/block', 'color', 'red');
+
+            expect($this->blockDefaults->getBlockDefaults('test/block'))->toHaveKey('color');
+        });
+
+        it('returns empty array for non-existent block', function () {
+            expect($this->blockDefaults->getBlockDefaults('test/nonexistent'))->toBe([]);
+        });
+    });
+
+    describe('overrideAttributes', function () {
+        it('overrides block metadata attributes', function () {
+            $this->blockDefaults->setAttribute('test/block', 'color', 'red');
+
+            $metadata = [
+                'name'       => 'test/block',
+                'attributes' => [
+                    'color' => [
+                        'type'    => 'string',
+                        'default' => 'blue',
+                    ],
+                ],
+            ];
+
+            $result = $this->blockDefaults->overrideAttributes($metadata);
+
+            expect($result['attributes']['color']['default'])->toBe('red');
+        });
+
+        it('ignores metadata for non-configured blocks', function () {
+            $metadata = [
+                'name'       => 'test/other',
+                'attributes' => [
+                    'color' => [
+                        'type'    => 'string',
+                        'default' => 'blue',
+                    ],
+                ],
+            ];
+
+            $result = $this->blockDefaults->overrideAttributes($metadata);
+
+            expect($result['attributes']['color']['default'])->toBe('blue');
+        });
+
+        it('handles metadata without attributes', function () {
+            $this->blockDefaults->setAttribute('test/block', 'color', 'red');
+
+            $metadata = [
+                'name' => 'test/block',
+            ];
+
+            $result = $this->blockDefaults->overrideAttributes($metadata);
+
+            expect($result['name'])->toBe('test/block');
+        });
+
+        it('only overrides attributes that exist in metadata', function () {
+            $this->blockDefaults->setAttributes('test/block', [
+                'color'       => 'red',
+                'nonexistent' => 'value',
+            ]);
+
+            $metadata = [
+                'name'       => 'test/block',
+                'attributes' => [
+                    'color' => [
+                        'type'    => 'string',
+                        'default' => 'blue',
+                    ],
+                ],
+            ];
+
+            $result = $this->blockDefaults->overrideAttributes($metadata);
+
+            expect($result['attributes']['color']['default'])->toBe('red');
+            expect($result['attributes'])->not->toHaveKey('nonexistent');
+        });
+
+        it('returns metadata unchanged if name is missing', function () {
+            $metadata = [
+                'attributes' => [
+                    'color' => [
+                        'type'    => 'string',
+                        'default' => 'blue',
+                    ],
+                ],
+            ];
+
+            $result = $this->blockDefaults->overrideAttributes($metadata);
+
+            expect($result)->toBe($metadata);
+        });
+    });
+
+    describe('set', function () {
+        it('sets a single attribute', function () {
+            $this->blockDefaults->set('test/block', 'color', 'red');
+
+            expect($this->blockDefaults->getBlockDefaults('test/block'))->toBe(['color' => 'red']);
+        });
+
+        it('sets multiple attributes via array', function () {
+            $this->blockDefaults->set('test/block', ['color' => 'red', 'size' => 'large']);
+
+            expect($this->blockDefaults->getBlockDefaults('test/block'))->toBe([
+                'color' => 'red',
+                'size'  => 'large',
+            ]);
+        });
+
+        it('merges when called multiple times with arrays', function () {
+            $this->blockDefaults->set('test/block', ['color' => 'red']);
+            $this->blockDefaults->set('test/block', ['size' => 'large']);
+
+            expect($this->blockDefaults->getBlockDefaults('test/block'))->toBe([
+                'color' => 'red',
+                'size'  => 'large',
+            ]);
+        });
+
+        it('merges when called with string and array', function () {
+            $this->blockDefaults->set('test/block', 'color', 'red');
+            $this->blockDefaults->set('test/block', ['size' => 'large']);
+
+            expect($this->blockDefaults->getBlockDefaults('test/block'))->toBe([
+                'color' => 'red',
+                'size'  => 'large',
+            ]);
+        });
+
+        it('returns self for method chaining', function () {
+            $result = $this->blockDefaults->set('test/block', 'color', 'red');
+
+            expect($result)->toBe($this->blockDefaults);
+        });
+    });
+
+    describe('remove', function () {
+        it('removes a block', function () {
+            $this->blockDefaults->set('test/block', ['color' => 'red']);
+            $this->blockDefaults->remove('test/block');
+
+            expect($this->blockDefaults->has('test/block'))->toBeFalse();
+        });
+
+        it('returns self for method chaining', function () {
+            $result = $this->blockDefaults->remove('test/block');
+
+            expect($result)->toBe($this->blockDefaults);
+        });
+
+        it('handles non-existent blocks gracefully', function () {
+            expect(fn () => $this->blockDefaults->remove('test/nonexistent'))->not->toThrow(Exception::class);
+        });
+    });
+
+    describe('removeAttribute', function () {
+        it('removes a specific attribute', function () {
+            $this->blockDefaults->set('test/block', ['color' => 'red', 'size' => 'large']);
+            $this->blockDefaults->removeAttribute('test/block', 'color');
+
+            expect($this->blockDefaults->getBlockDefaults('test/block'))->toBe(['size' => 'large']);
+        });
+
+        it('returns self for method chaining', function () {
+            $result = $this->blockDefaults->removeAttribute('test/block', 'color');
+
+            expect($result)->toBe($this->blockDefaults);
+        });
+
+        it('handles non-existent attributes gracefully', function () {
+            $this->blockDefaults->set('test/block', ['color' => 'red']);
+
+            expect(fn () => $this->blockDefaults->removeAttribute('test/block', 'nonexistent'))->not->toThrow(Exception::class);
+        });
+    });
+
+    describe('has', function () {
+        it('returns true for existing block', function () {
+            $this->blockDefaults->set('test/block', ['color' => 'red']);
+
+            expect($this->blockDefaults->has('test/block'))->toBeTrue();
+        });
+
+        it('returns false for non-existent block', function () {
+            expect($this->blockDefaults->has('test/nonexistent'))->toBeFalse();
+        });
+    });
+
+    describe('hasAttribute', function () {
+        it('returns true for existing attribute', function () {
+            $this->blockDefaults->set('test/block', ['color' => 'red']);
+
+            expect($this->blockDefaults->hasAttribute('test/block', 'color'))->toBeTrue();
+        });
+
+        it('returns false for non-existent attribute', function () {
+            $this->blockDefaults->set('test/block', ['color' => 'red']);
+
+            expect($this->blockDefaults->hasAttribute('test/block', 'size'))->toBeFalse();
+        });
+
+        it('returns false for non-existent block', function () {
+            expect($this->blockDefaults->hasAttribute('test/nonexistent', 'color'))->toBeFalse();
+        });
+    });
+
+    describe('register', function () {
+        it('returns self for method chaining', function () {
+            $result = $this->blockDefaults->register();
+
+            expect($result)->toBe($this->blockDefaults);
+        });
+    });
+
+    describe('method chaining', function () {
+        it('chains multiple operations', function () {
+            $result = $this->blockDefaults
+                ->addBlock('test/block-one', ['color' => 'red'])
+                ->setAttribute('test/block-two', 'size', 'large')
+                ->setAttributes('test/block-three', ['padding' => '10px']);
+
+            expect($result)->toBe($this->blockDefaults);
+            expect($this->blockDefaults->getBlockDefaults('test/block-one'))->toBe(['color' => 'red']);
+            expect($this->blockDefaults->getBlockDefaults('test/block-two'))->toHaveKey('size');
+            expect($this->blockDefaults->getBlockDefaults('test/block-three'))->toHaveKey('padding');
+        });
+
+        it('chains with new set() method', function () {
+            $result = $this->blockDefaults
+                ->set('test/block-one', ['color' => 'red'])
+                ->set('test/block-two', 'size', 'large')
+                ->remove('test/block-one')
+                ->register();
+
+            expect($result)->toBe($this->blockDefaults);
+            expect($this->blockDefaults->has('test/block-one'))->toBeFalse();
+            expect($this->blockDefaults->getBlockDefaults('test/block-two'))->toHaveKey('size');
+        });
+    });
+});
