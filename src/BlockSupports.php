@@ -16,7 +16,7 @@ class BlockSupports implements ServiceContract
     /**
      * Supports to add/merge into the block.
      *
-     * @var array
+     * @var array<string, bool|array>
      */
     protected array $supportsToAdd = [];
 
@@ -28,29 +28,16 @@ class BlockSupports implements ServiceContract
     protected array $supportsToRemove = [];
 
     /**
-     * Private constructor. Use the static for() method instead.
-     *
-     * @param string $blockName The block name in 'namespace/name' format
-     */
-    private function __construct(string $blockName)
-    {
-        $this->blockName = $blockName;
-    }
-
-    /**
      * Create a new BlockSupports instance for a specific block.
      *
-     * @param string $blockName The block name in 'namespace/name' format
+     * @param string $blockName The block name in 'namespace/name' format (e.g., 'core/button')
      *
      * @throws \InvalidArgumentException If block name format is invalid
-     *
-     * @return self
      */
-    public static function for(string $blockName): self
+    public function __construct(string $blockName)
     {
         self::validateBlockName($blockName);
-
-        return new self($blockName);
+        $this->blockName = $blockName;
     }
 
     /**
@@ -86,7 +73,7 @@ class BlockSupports implements ServiceContract
      *   ->add(['color' => ['palette' => [...]]])
      *   ->add(['color', 'typography'])  // shorthand for boolean features
      *
-     * @param array $supports Supports to add/merge
+     * @param array<string|int, string|bool|array> $supports Supports to add/merge
      *
      * @return self
      */
@@ -114,7 +101,7 @@ class BlockSupports implements ServiceContract
      *   ->remove('spacing')
      *   ->remove(['spacing', 'padding'])
      *
-     * @param string|array $supportKeys Support key(s) to remove
+     * @param string|array<string> $supportKeys Support key(s) to remove
      *
      * @return self
      */
@@ -146,10 +133,10 @@ class BlockSupports implements ServiceContract
     /**
      * Filter block type args to apply supports configuration.
      *
-     * @param array  $args      The arguments for register_block_type
-     * @param string $blockName The block name being registered
+     * @param array<string, mixed> $args      The arguments for register_block_type
+     * @param string                $blockName The block name being registered
      *
-     * @return array Modified arguments
+     * @return array<string, mixed> Modified arguments
      */
     public function filterBlockTypeArgs(array $args, string $blockName): array
     {
@@ -181,10 +168,10 @@ class BlockSupports implements ServiceContract
      *
      * Used to merge supports configuration while preserving nested array structures.
      *
-     * @param array $existing The existing array
-     * @param array $new      The new array to merge in
+     * @param array<string, bool|array> $existing The existing array
+     * @param array<string, bool|array> $new      The new array to merge in
      *
-     * @return array The merged array
+     * @return array<string, bool|array> The merged array
      */
     protected function deepMerge(array $existing, array $new): array
     {
@@ -202,7 +189,7 @@ class BlockSupports implements ServiceContract
     /**
      * Get the configured supports to add.
      *
-     * @return array
+     * @return array<string, bool|array>
      */
     public function getSupportsToAdd(): array
     {
@@ -212,7 +199,7 @@ class BlockSupports implements ServiceContract
     /**
      * Get the configured supports to remove.
      *
-     * @return array
+     * @return array<string>
      */
     public function getSupportsToRemove(): array
     {

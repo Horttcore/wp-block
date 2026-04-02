@@ -2,6 +2,9 @@
 
 use Brain\Monkey\Functions;
 use RalfHortt\WPBlock\BlockManager;
+use RalfHortt\WPBlock\BlockSupports;
+use RalfHortt\WPBlock\BlockStyles;
+use RalfHortt\WPBlock\BlockVariations;
 
 describe('BlockManager', function () {
     beforeEach(function () {
@@ -9,46 +12,46 @@ describe('BlockManager', function () {
         Functions\when('add_filter')->justReturn(true);
     });
 
-    it('can be instantiated using for() factory method', function () {
-        $manager = BlockManager::for('core/image');
+    it('can be instantiated using constructor', function () {
+        $manager = new BlockManager('core/image');
         expect($manager)->toBeInstanceOf(BlockManager::class);
     });
 
-    it('validates block name format in factory method', function () {
+    it('validates block name format in constructor', function () {
         expect(function () {
-            BlockManager::for('invalid-block');
+            new BlockManager('invalid-block');
         })->toThrow(\InvalidArgumentException::class);
     });
 
     it('stores the block name correctly', function () {
-        $manager = BlockManager::for('core/image');
+        $manager = new BlockManager('core/image');
         expect($manager->getBlockName())->toBe('core/image');
     });
 
     it('can add supports', function () {
-        $manager = BlockManager::for('core/image');
+        $manager = new BlockManager('core/image');
         $result = $manager->addSupports(['color' => true, 'alignment' => true]);
 
         expect($result)->toBe($manager); // Fluent interface
     });
 
     it('can remove supports', function () {
-        $manager = BlockManager::for('core/image');
+        $manager = new BlockManager('core/image');
         $result = $manager->removeSupports(['spacing', 'padding']);
 
         expect($result)->toBe($manager); // Fluent interface
     });
 
     it('can add a single style', function () {
-        $manager = BlockManager::for('core/button');
-        $result = $manager->addStyle('core/button', ['name' => 'test', 'label' => 'Test']);
+        $manager = new BlockManager('core/button');
+        $result = $manager->addStyle(['name' => 'test', 'label' => 'Test']);
 
         expect($result)->toBe($manager); // Fluent interface
     });
 
     it('can add multiple styles', function () {
-        $manager = BlockManager::for('core/button');
-        $result = $manager->addStyles('core/button', [
+        $manager = new BlockManager('core/button');
+        $result = $manager->addStyles([
             ['name' => 'style1', 'label' => 'Style 1'],
             ['name' => 'style2', 'label' => 'Style 2'],
         ]);
@@ -57,23 +60,23 @@ describe('BlockManager', function () {
     });
 
     it('can remove a specific style', function () {
-        $manager = BlockManager::for('core/button');
-        $result = $manager->removeStyle('core/button', 'outline');
+        $manager = new BlockManager('core/button');
+        $result = $manager->removeStyle('outline');
 
         expect($result)->toBe($manager); // Fluent interface
     });
 
     it('can remove all styles', function () {
-        $manager = BlockManager::for('core/button');
-        $result = $manager->removeAllStyles('core/button');
+        $manager = new BlockManager('core/button');
+        $result = $manager->removeAllStyles();
 
         expect($result)->toBe($manager); // Fluent interface
     });
 
     it('can add a single variation', function () {
-        $manager = BlockManager::for('core/image');
-        $result = $manager->addVariation('core/image', [
-            'name'  => 'hero-image',
+        $manager = new BlockManager('core/image');
+        $result = $manager->addVariation([
+            'name' => 'hero-image',
             'title' => 'Hero Image',
         ]);
 
@@ -81,8 +84,8 @@ describe('BlockManager', function () {
     });
 
     it('can add multiple variations', function () {
-        $manager = BlockManager::for('core/image');
-        $result = $manager->addVariations('core/image', [
+        $manager = new BlockManager('core/image');
+        $result = $manager->addVariations([
             ['name' => 'var1', 'title' => 'Variation 1'],
             ['name' => 'var2', 'title' => 'Variation 2'],
         ]);
@@ -91,32 +94,32 @@ describe('BlockManager', function () {
     });
 
     it('can remove a specific variation', function () {
-        $manager = BlockManager::for('core/button');
-        $result = $manager->removeVariation('core/button', 'outline');
+        $manager = new BlockManager('core/button');
+        $result = $manager->removeVariation('outline');
 
         expect($result)->toBe($manager); // Fluent interface
     });
 
     it('can remove all variations', function () {
-        $manager = BlockManager::for('core/button');
-        $result = $manager->removeAllVariations('core/button');
+        $manager = new BlockManager('core/button');
+        $result = $manager->removeAllVariations();
 
         expect($result)->toBe($manager); // Fluent interface
     });
 
     it('can register without throwing an exception', function () {
-        $manager = BlockManager::for('core/image');
+        $manager = new BlockManager('core/image');
         $manager->register();
 
         expect(true)->toBeTrue();
     });
 
     it('registers all three managers when register() is called', function () {
-        $manager = BlockManager::for('core/button');
+        $manager = new BlockManager('core/button');
 
         $manager->addSupports(['color' => true]);
-        $manager->removeStyle('core/button', 'outline');
-        $manager->addVariation('core/button', ['name' => 'cta']);
+        $manager->removeStyle('outline');
+        $manager->addVariation(['name' => 'cta']);
 
         $manager->register();
 
@@ -124,13 +127,13 @@ describe('BlockManager', function () {
     });
 
     it('is instance of ServiceContract', function () {
-        $manager = BlockManager::for('core/image');
+        $manager = new BlockManager('core/image');
         expect($manager)->toBeInstanceOf(\RalfHortt\ServiceContracts\ServiceContract::class);
     });
 
     it('creates separate manager instances for different blocks', function () {
-        $manager1 = BlockManager::for('core/image');
-        $manager2 = BlockManager::for('core/paragraph');
+        $manager1 = new BlockManager('core/image');
+        $manager2 = new BlockManager('core/paragraph');
 
         expect($manager1->getBlockName())->toBe('core/image');
         expect($manager2->getBlockName())->toBe('core/paragraph');
@@ -138,20 +141,20 @@ describe('BlockManager', function () {
     });
 
     it('supports fluent chaining across multiple operations', function () {
-        $manager = BlockManager::for('core/image');
+        $manager = new BlockManager('core/image');
 
         $result = $manager
             ->addSupports(['color' => true, 'alignment' => true])
             ->removeSupports(['spacing'])
-            ->removeStyle('core/image', 'outline')
-            ->addVariation('core/image', [
-                'name'       => 'hero-image',
-                'title'      => 'Hero Image',
+            ->removeStyle('outline')
+            ->addVariation([
+                'name' => 'hero-image',
+                'title' => 'Hero Image',
                 'attributes' => ['align' => 'wide'],
             ])
-            ->addVariation('core/image', [
-                'name'       => 'thumbnail-image',
-                'title'      => 'Thumbnail Image',
+            ->addVariation([
+                'name' => 'thumbnail-image',
+                'title' => 'Thumbnail Image',
                 'attributes' => ['align' => 'center', 'scale' => 'thumbnail'],
             ]);
 
@@ -159,40 +162,55 @@ describe('BlockManager', function () {
     });
 
     it('supports mixed operations on all managers', function () {
-        $manager = BlockManager::for('core/button');
+        $manager = new BlockManager('core/button');
 
         $result = $manager
             ->addSupports(['color' => true])
             ->addSupports(['typography' => true])
             ->removeSupports(['spacing'])
-            ->addStyle('core/button', ['name' => 'style1', 'label' => 'Style 1'])
-            ->removeStyle('core/button', 'outline')
-            ->addVariation('core/button', ['name' => 'primary', 'title' => 'Primary'])
-            ->removeVariation('core/button', 'ghost');
+            ->addStyle(['name' => 'style1', 'label' => 'Style 1'])
+            ->removeStyle('outline')
+            ->addVariation(['name' => 'primary', 'title' => 'Primary'])
+            ->removeVariation('ghost');
 
         expect($result)->toBe($manager);
     });
 
-    it('allows configuring for the managed block directly', function () {
-        $manager = BlockManager::for('core/image');
+    it('uses the managed block name for styles automatically', function () {
+        $manager = new BlockManager('core/image');
 
-        // When configuring for the same block, the block name should match
+        // When calling style methods, the manager automatically uses 'core/image'
+        $result = $manager
+            ->addStyle(['name' => 'test', 'label' => 'Test'])
+            ->removeStyle('outline')
+            ->removeAllStyles();
+
+        expect($result)->toBe($manager);
+    });
+
+    it('uses the managed block name for variations automatically', function () {
+        $manager = new BlockManager('core/button');
+
+        // When calling variation methods, the manager automatically uses 'core/button'
+        $result = $manager
+            ->addVariation(['name' => 'test-var', 'title' => 'Test'])
+            ->removeVariation('outline')
+            ->removeAllVariations();
+
+        expect($result)->toBe($manager);
+    });
+
+    it('has clean api with no redundant block name', function () {
+        $manager = new BlockManager('core/button');
+
+        // This is the ideal clean API - no block name duplication
         $result = $manager
             ->addSupports(['color' => true])
-            ->addVariation('core/image', ['name' => 'test-var', 'title' => 'Test'])
-            ->removeStyle('core/image', 'outline');
+            ->removeStyle('outline')
+            ->addVariation(['name' => 'cta', 'title' => 'CTA Button'])
+            ->register();
 
-        expect($result)->toBe($manager);
-    });
-
-    it('can configure different blocks via same manager methods', function () {
-        $manager = BlockManager::for('core/image');
-
-        // BlockManager can configure styles for any block, not just the managed one
-        $result = $manager
-            ->addStyle('core/paragraph', ['name' => 'para-style', 'label' => 'Para Style'])
-            ->addVariation('core/button', ['name' => 'btn-var', 'title' => 'Button Var']);
-
-        expect($result)->toBe($manager);
+        // Just verify register returns void and doesn't throw
+        expect($result)->toBeNull();
     });
 });

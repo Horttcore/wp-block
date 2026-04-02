@@ -9,29 +9,29 @@ describe('BlockSupports', function () {
         Functions\when('add_filter')->justReturn(true);
     });
 
-    it('can be instantiated using for() factory method', function () {
-        $blockSupports = BlockSupports::for('core/image');
+    it('can be instantiated using constructor', function () {
+        $blockSupports = new BlockSupports('core/image');
         expect($blockSupports)->toBeInstanceOf(BlockSupports::class);
     });
 
-    it('validates block name format in factory method', function () {
+    it('validates block name format in constructor', function () {
         expect(function () {
-            BlockSupports::for('invalid-block');
+            new BlockSupports('invalid-block');
         })->toThrow(\InvalidArgumentException::class);
     });
 
     it('validates block name has namespace and name', function () {
         expect(function () {
-            BlockSupports::for('core/');
+            new BlockSupports('core/');
         })->toThrow(\InvalidArgumentException::class);
 
         expect(function () {
-            BlockSupports::for('/image');
+            new BlockSupports('/image');
         })->toThrow(\InvalidArgumentException::class);
     });
 
     it('can add supports with associative array', function () {
-        $blockSupports = BlockSupports::for('core/image');
+        $blockSupports = new BlockSupports('core/image');
         $result = $blockSupports->add(['color' => true, 'alignment' => true]);
 
         expect($result)->toBe($blockSupports); // Test fluent interface
@@ -40,7 +40,7 @@ describe('BlockSupports', function () {
     });
 
     it('can add supports with nested configuration', function () {
-        $blockSupports = BlockSupports::for('core/image');
+        $blockSupports = new BlockSupports('core/image');
         $colorConfig = ['palette' => ['red', 'blue', 'green']];
         $blockSupports->add(['color' => $colorConfig]);
 
@@ -48,7 +48,7 @@ describe('BlockSupports', function () {
     });
 
     it('can add supports with string shorthand (boolean)', function () {
-        $blockSupports = BlockSupports::for('core/image');
+        $blockSupports = new BlockSupports('core/image');
         $blockSupports->add(['color', 'typography', 'spacing']);
 
         $supports = $blockSupports->getSupportsToAdd();
@@ -58,7 +58,7 @@ describe('BlockSupports', function () {
     });
 
     it('can add mixed string and associative supports', function () {
-        $blockSupports = BlockSupports::for('core/image');
+        $blockSupports = new BlockSupports('core/image');
         $blockSupports->add([
             'color' => ['palette' => ['red', 'blue']],
             'typography',
@@ -72,7 +72,7 @@ describe('BlockSupports', function () {
     });
 
     it('can remove supports with string', function () {
-        $blockSupports = BlockSupports::for('core/image');
+        $blockSupports = new BlockSupports('core/image');
         $result = $blockSupports->remove('spacing');
 
         expect($result)->toBe($blockSupports); // Test fluent interface
@@ -80,7 +80,7 @@ describe('BlockSupports', function () {
     });
 
     it('can remove supports with array', function () {
-        $blockSupports = BlockSupports::for('core/image');
+        $blockSupports = new BlockSupports('core/image');
         $blockSupports->remove(['spacing', 'padding', 'margin']);
 
         expect($blockSupports->getSupportsToRemove())->toContain('spacing');
@@ -89,14 +89,14 @@ describe('BlockSupports', function () {
     });
 
     it('can register without throwing an exception', function () {
-        $blockSupports = BlockSupports::for('core/image');
+        $blockSupports = new BlockSupports('core/image');
         $blockSupports->register();
 
         expect(true)->toBeTrue();
     });
 
     it('filters block type args for the correct block', function () {
-        $blockSupports = BlockSupports::for('core/image');
+        $blockSupports = new BlockSupports('core/image');
         $blockSupports->add(['color' => true]);
 
         $args = [
@@ -110,7 +110,7 @@ describe('BlockSupports', function () {
     });
 
     it('ignores block type args for other blocks', function () {
-        $blockSupports = BlockSupports::for('core/image');
+        $blockSupports = new BlockSupports('core/image');
         $blockSupports->add(['color' => true]);
 
         $args = [
@@ -124,7 +124,7 @@ describe('BlockSupports', function () {
     });
 
     it('removes supports correctly', function () {
-        $blockSupports = BlockSupports::for('core/image');
+        $blockSupports = new BlockSupports('core/image');
         $blockSupports->remove('spacing');
 
         $args = [
@@ -143,7 +143,7 @@ describe('BlockSupports', function () {
     });
 
     it('creates supports array if not present', function () {
-        $blockSupports = BlockSupports::for('core/image');
+        $blockSupports = new BlockSupports('core/image');
         $blockSupports->add(['color' => true]);
 
         $args = [];
@@ -155,7 +155,7 @@ describe('BlockSupports', function () {
     });
 
     it('deep merges nested support configuration', function () {
-        $blockSupports = BlockSupports::for('core/image');
+        $blockSupports = new BlockSupports('core/image');
         $blockSupports->add([
             'color' => [
                 'palette'  => ['red', 'blue'],
@@ -181,7 +181,7 @@ describe('BlockSupports', function () {
     });
 
     it('supports method chaining', function () {
-        $blockSupports = BlockSupports::for('core/image');
+        $blockSupports = new BlockSupports('core/image');
 
         $result = $blockSupports
             ->add(['color' => true])
@@ -197,12 +197,12 @@ describe('BlockSupports', function () {
     });
 
     it('returns block name correctly', function () {
-        $blockSupports = BlockSupports::for('core/image');
+        $blockSupports = new BlockSupports('core/image');
         expect($blockSupports->getBlockName())->toBe('core/image');
     });
 
     it('can add and then remove conflicting supports', function () {
-        $blockSupports = BlockSupports::for('core/image');
+        $blockSupports = new BlockSupports('core/image');
         $blockSupports->add(['color' => true, 'spacing' => true]);
         $blockSupports->remove('spacing');
 
@@ -217,7 +217,7 @@ describe('BlockSupports', function () {
     });
 
     it('handles multiple removals of the same support', function () {
-        $blockSupports = BlockSupports::for('core/image');
+        $blockSupports = new BlockSupports('core/image');
         $blockSupports->remove('spacing');
         $blockSupports->remove(['spacing']); // Remove same key again
 
@@ -235,7 +235,7 @@ describe('BlockSupports', function () {
     });
 
     it('preserves existing supports when merging', function () {
-        $blockSupports = BlockSupports::for('core/image');
+        $blockSupports = new BlockSupports('core/image');
         $blockSupports->add(['color' => true]);
 
         $args = [
@@ -257,7 +257,7 @@ describe('BlockSupports', function () {
     });
 
     it('is instance of ServiceContract', function () {
-        $blockSupports = BlockSupports::for('core/image');
+        $blockSupports = new BlockSupports('core/image');
         expect($blockSupports)->toBeInstanceOf(\RalfHortt\ServiceContracts\ServiceContract::class);
     });
 });

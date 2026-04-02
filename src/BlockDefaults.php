@@ -2,11 +2,15 @@
 
 namespace RalfHortt\WPBlock;
 
-class BlockDefaults
+use RalfHortt\ServiceContracts\ServiceContract;
+
+class BlockDefaults implements ServiceContract
 {
     /**
      * Array of block configurations.
      * Format: ['block-name' => ['attributeName' => value, ...], ...].
+     *
+     * @var array<string, array<string, mixed>>
      */
     protected array $blockDefaults = [];
 
@@ -18,34 +22,26 @@ class BlockDefaults
     protected ?array $focusedBlocks = null;
 
     /**
-     * Private constructor. Use the static for() method instead.
-     *
-     * @param array $blocks Optional array of blocks with their default attributes
-     *                      Format: ['block-name' => ['attributeName' => value, ...], ...]
-     */
-    private function __construct(array $blocks = [])
-    {
-        $this->blockDefaults = $blocks;
-    }
-
-    /**
      * Create a new BlockDefaults instance.
      *
-     * @param string|array<string> $blocks Block name(s) to focus on
-     *                                     Single: 'block/name'
-     *                                     Multiple: ['block/one', 'block/two']
+     * @param string|array<string>|null $blocks Optional block name(s) to focus on
+     *                                           Single: 'block/name'
+     *                                           Multiple: ['block/one', 'block/two']
+     *                                           Null: Create empty instance
      *
      * @throws \InvalidArgumentException If block name format is invalid
      */
-    public static function for(string|array $blocks): self
+    public function __construct(string|array|null $blocks = null)
     {
-        $instance = new self();
+        if ($blocks === null) {
+            return;
+        }
 
         if (is_string($blocks)) {
             // Single-block mode
             self::validateBlockName($blocks);
-            $instance->focusedBlocks = [$blocks];
-            $instance->blockDefaults[$blocks] = [];
+            $this->focusedBlocks = [$blocks];
+            $this->blockDefaults[$blocks] = [];
         } else {
             // Multi-block mode: multiple block names
             foreach ($blocks as $blockName) {
@@ -55,13 +51,11 @@ class BlockDefaults
                 self::validateBlockName($blockName);
             }
 
-            $instance->focusedBlocks = $blocks;
+            $this->focusedBlocks = $blocks;
             foreach ($blocks as $blockName) {
-                $instance->blockDefaults[$blockName] = [];
+                $this->blockDefaults[$blockName] = [];
             }
         }
-
-        return $instance;
     }
 
     /**

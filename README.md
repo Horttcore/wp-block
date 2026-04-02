@@ -150,17 +150,17 @@ Manage supports, styles, and variations for a specific block in one place:
 ```php
 use RalfHortt\WPBlock\BlockManager;
 
-$manager = BlockManager::for('core/image');
+$manager = new BlockManager('core/image');
 
 // Configure supports
 $manager->addSupports(['color' => true, 'alignment' => true]);
 $manager->removeSupports(['spacing']);
 
-// Configure styles
-$manager->removeStyle('core/image', 'outline');
+// Configure styles (no need to repeat block name!)
+$manager->removeStyle('outline');
 
-// Configure variations
-$manager->addVariation('core/image', [
+// Configure variations (no need to repeat block name!)
+$manager->addVariation([
     'name' => 'hero-image',
     'title' => 'Hero Image',
     'attributes' => ['align' => 'wide'],
@@ -173,14 +173,14 @@ $manager->register();
 Or use fluent chaining for a more compact syntax:
 
 ```php
-BlockManager::for('core/button')
+(new BlockManager('core/button'))
     ->addSupports(['color' => true])
-    ->removeStyle('core/button', 'outline')
-    ->addVariation('core/button', ['name' => 'cta', 'title' => 'CTA Button'])
+    ->removeStyle('outline')
+    ->addVariation(['name' => 'cta', 'title' => 'CTA Button'])
     ->register();
 ```
 
-The BlockManager provides direct access to all methods from BlockSupports, BlockStyles, and BlockVariations with a unified fluent interface.
+The BlockManager provides direct access to all methods from BlockSupports, BlockStyles, and BlockVariations with a unified fluent interface. Style and variation methods automatically use the managed block name, eliminating redundancy.
 
 ### Custom Block Class
 
