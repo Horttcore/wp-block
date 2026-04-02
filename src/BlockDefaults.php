@@ -25,9 +25,9 @@ class BlockDefaults implements ServiceContract
      * Create a new BlockDefaults instance.
      *
      * @param string|array<string>|null $blocks Optional block name(s) to focus on
-     *                                           Single: 'block/name'
-     *                                           Multiple: ['block/one', 'block/two']
-     *                                           Null: Create empty instance
+     *                                          Single: 'block/name'
+     *                                          Multiple: ['block/one', 'block/two']
+     *                                          Null: Create empty instance
      *
      * @throws \InvalidArgumentException If block name format is invalid
      */

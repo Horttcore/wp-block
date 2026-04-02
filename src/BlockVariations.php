@@ -32,7 +32,7 @@ class BlockVariations implements ServiceContract
     /**
      * Add a variation to a block.
      *
-     * @param string $blockName The block name (namespace/name format)
+     * @param string                                                                                                                             $blockName The block name (namespace/name format)
      * @param array{name: string, title: string, description?: string, attributes?: array, innerBlocks?: array, scope?: array, isDefault?: bool} $variation The variation configuration
      *
      * @return self
@@ -51,7 +51,7 @@ class BlockVariations implements ServiceContract
     /**
      * Add multiple variations to a block.
      *
-     * @param string $blockName The block name (namespace/name format)
+     * @param string                                                                                                                                    $blockName  The block name (namespace/name format)
      * @param array<array{name: string, title: string, description?: string, attributes?: array, innerBlocks?: array, scope?: array, isDefault?: bool}> $variations Array of variation configurations
      *
      * @return self
@@ -68,7 +68,7 @@ class BlockVariations implements ServiceContract
     /**
      * Remove a specific variation from a block.
      *
-     * @param string $blockName The block name (namespace/name format)
+     * @param string $blockName     The block name (namespace/name format)
      * @param string $variationName The variation name to remove
      *
      * @return self
@@ -149,7 +149,7 @@ class BlockVariations implements ServiceContract
      * Register custom variations for a block type.
      *
      * @param array<array<string, mixed>> $variations The existing variations
-     * @param object $blockType The block type object
+     * @param object                      $blockType  The block type object
      *
      * @return array<array<string, mixed>> The merged variations array
      */

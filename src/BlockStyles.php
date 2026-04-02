@@ -33,8 +33,8 @@ class BlockStyles implements ServiceContract
     /**
      * Add a style to a block.
      *
-     * @param string $blockName The block name (namespace/name format)
-     * @param array{name: string, label?: string} $style The style configuration
+     * @param string                              $blockName The block name (namespace/name format)
+     * @param array{name: string, label?: string} $style     The style configuration
      *
      * @return self
      */
@@ -52,8 +52,8 @@ class BlockStyles implements ServiceContract
     /**
      * Add multiple styles to a block.
      *
-     * @param string $blockName The block name (namespace/name format)
-     * @param array<array{name: string, label?: string}> $styles Array of style configurations
+     * @param string                                     $blockName The block name (namespace/name format)
+     * @param array<array{name: string, label?: string}> $styles    Array of style configurations
      *
      * @return self
      */
