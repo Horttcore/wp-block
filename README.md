@@ -19,6 +19,8 @@ composer require ralfhortt/wp-block
 - 🎨 **BlockVariations** - Create variations of existing blocks
 - 🎭 **BlockStyles** - Manage block styles
 - ⚙️ **BlockDefaults** - Override block attribute defaults with callback support
+- 🛠️ **BlockSupports** - Configure block supports (enable/disable features)
+- 📦 **BlockManager** - Unified management of supports, styles, and variations per block
 - 🧩 **Block** - Custom PHP-rendered blocks
 
 ## Quick Start
@@ -104,6 +106,82 @@ use RalfHortt\WPBlock\BlockStyles;
 
 > **Note:** For adding styles, use `theme.json` or `block.json` instead.
 
+### BlockSupports
+
+Configure block supports (enable/disable block features):
+
+```php
+use RalfHortt\WPBlock\BlockSupports;
+
+// Add supports
+BlockSupports::for('core/image')
+    ->add(['color' => true, 'alignment' => true])
+    ->register();
+
+// Add supports with nested configuration
+BlockSupports::for('core/button')
+    ->add([
+        'color' => [
+            'palette' => [
+                ['name' => 'Red', 'slug' => 'red', 'color' => '#ff0000'],
+            ],
+        ],
+    ])
+    ->register();
+
+// Remove supports
+BlockSupports::for('core/image')
+    ->remove(['spacing', 'padding', 'margin'])
+    ->register();
+
+// Combine add and remove
+BlockSupports::for('core/paragraph')
+    ->add(['color' => true, 'typography' => true])
+    ->remove(['spacing'])
+    ->register();
+```
+
+**Note:** When both adding and removing the same support, removals take precedence.
+
+### BlockManager
+
+Manage supports, styles, and variations for a specific block in one place:
+
+```php
+use RalfHortt\WPBlock\BlockManager;
+
+$manager = BlockManager::for('core/image');
+
+// Configure supports
+$manager->addSupports(['color' => true, 'alignment' => true]);
+$manager->removeSupports(['spacing']);
+
+// Configure styles
+$manager->removeStyle('core/image', 'outline');
+
+// Configure variations
+$manager->addVariation('core/image', [
+    'name' => 'hero-image',
+    'title' => 'Hero Image',
+    'attributes' => ['align' => 'wide'],
+]);
+
+// Register all managers
+$manager->register();
+```
+
+Or use fluent chaining for a more compact syntax:
+
+```php
+BlockManager::for('core/button')
+    ->addSupports(['color' => true])
+    ->removeStyle('core/button', 'outline')
+    ->addVariation('core/button', ['name' => 'cta', 'title' => 'CTA Button'])
+    ->register();
+```
+
+The BlockManager provides direct access to all methods from BlockSupports, BlockStyles, and BlockVariations with a unified fluent interface.
+
 ### Custom Block Class
 
 Create custom PHP-rendered blocks:
@@ -149,7 +227,9 @@ See [WordPress Block Variations documentation](https://developer.wordpress.org/b
 
 **WordPress Filters (used internally):**
 - `block_type_metadata` - Used by BlockDefaults and BlockManifest
+- `block_type_metadata_settings` - Used by BlockVariations and BlockStyles
 - `get_block_type_variations` - Used by BlockVariations
+- `register_block_type_args` - Used by BlockSupports
 
 ## Development
 
