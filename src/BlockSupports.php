@@ -134,7 +134,7 @@ class BlockSupports implements ServiceContract
      * Filter block type args to apply supports configuration.
      *
      * @param array<string, mixed> $args      The arguments for register_block_type
-     * @param string                $blockName The block name being registered
+     * @param string               $blockName The block name being registered
      *
      * @return array<string, mixed> Modified arguments
      */
