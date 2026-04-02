@@ -42,9 +42,9 @@ class BlockSupports implements ServiceContract
      *
      * @param string $blockName The block name in 'namespace/name' format
      *
-     * @return self
-     *
      * @throws \InvalidArgumentException If block name format is invalid
+     *
+     * @return self
      */
     public static function for(string $blockName): self
     {

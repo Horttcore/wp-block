@@ -2,9 +2,6 @@
 
 use Brain\Monkey\Functions;
 use RalfHortt\WPBlock\BlockManager;
-use RalfHortt\WPBlock\BlockSupports;
-use RalfHortt\WPBlock\BlockStyles;
-use RalfHortt\WPBlock\BlockVariations;
 
 describe('BlockManager', function () {
     beforeEach(function () {
@@ -76,7 +73,7 @@ describe('BlockManager', function () {
     it('can add a single variation', function () {
         $manager = BlockManager::for('core/image');
         $result = $manager->addVariation('core/image', [
-            'name' => 'hero-image',
+            'name'  => 'hero-image',
             'title' => 'Hero Image',
         ]);
 
@@ -148,13 +145,13 @@ describe('BlockManager', function () {
             ->removeSupports(['spacing'])
             ->removeStyle('core/image', 'outline')
             ->addVariation('core/image', [
-                'name' => 'hero-image',
-                'title' => 'Hero Image',
+                'name'       => 'hero-image',
+                'title'      => 'Hero Image',
                 'attributes' => ['align' => 'wide'],
             ])
             ->addVariation('core/image', [
-                'name' => 'thumbnail-image',
-                'title' => 'Thumbnail Image',
+                'name'       => 'thumbnail-image',
+                'title'      => 'Thumbnail Image',
                 'attributes' => ['align' => 'center', 'scale' => 'thumbnail'],
             ]);
 

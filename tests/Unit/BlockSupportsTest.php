@@ -130,8 +130,8 @@ describe('BlockSupports', function () {
         $args = [
             'supports' => [
                 'alignment' => true,
-                'spacing' => ['margin' => true],
-                'color' => true,
+                'spacing'   => ['margin' => true],
+                'color'     => true,
             ],
         ];
 
@@ -158,7 +158,7 @@ describe('BlockSupports', function () {
         $blockSupports = BlockSupports::for('core/image');
         $blockSupports->add([
             'color' => [
-                'palette' => ['red', 'blue'],
+                'palette'  => ['red', 'blue'],
                 'gradient' => true,
             ],
         ]);
@@ -167,7 +167,7 @@ describe('BlockSupports', function () {
             'supports' => [
                 'color' => [
                     'background' => true,
-                    'palette' => ['green'], // Will be overwritten
+                    'palette'    => ['green'], // Will be overwritten
                 ],
             ],
         ];
@@ -224,7 +224,7 @@ describe('BlockSupports', function () {
         $args = [
             'supports' => [
                 'spacing' => true,
-                'color' => true,
+                'color'   => true,
             ],
         ];
 
@@ -240,8 +240,8 @@ describe('BlockSupports', function () {
 
         $args = [
             'supports' => [
-                'alignment' => ['type' => 'sticky'],
-                'spacing' => ['margin' => true],
+                'alignment'  => ['type' => 'sticky'],
+                'spacing'    => ['margin' => true],
                 'typography' => true,
             ],
         ];

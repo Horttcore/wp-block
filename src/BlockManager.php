@@ -52,9 +52,9 @@ class BlockManager implements ServiceContract
      *
      * @param string $blockName The block name in 'namespace/name' format
      *
-     * @return self
-     *
      * @throws \InvalidArgumentException If block name format is invalid
+     *
+     * @return self
      */
     public static function for(string $blockName): self
     {
@@ -136,8 +136,8 @@ class BlockManager implements ServiceContract
     /**
      * Remove a specific style from a block.
      *
-     * @param string $blockName  The block name
-     * @param string $styleName  The style name to remove
+     * @param string $blockName The block name
+     * @param string $styleName The style name to remove
      *
      * @return self
      */
@@ -182,8 +182,8 @@ class BlockManager implements ServiceContract
     /**
      * Add multiple variations to a block.
      *
-     * @param string $blockName   The block name
-     * @param array  $variations  Array of variation configurations
+     * @param string $blockName  The block name
+     * @param array  $variations Array of variation configurations
      *
      * @return self
      */
@@ -197,8 +197,8 @@ class BlockManager implements ServiceContract
     /**
      * Remove a specific variation from a block.
      *
-     * @param string $blockName       The block name
-     * @param string $variationName   The variation name to remove
+     * @param string $blockName     The block name
+     * @param string $variationName The variation name to remove
      *
      * @return self
      */
