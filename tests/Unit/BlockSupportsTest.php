@@ -14,6 +14,12 @@ describe('BlockSupports', function () {
         expect($blockSupports)->toBeInstanceOf(BlockSupports::class);
     });
 
+    it('can be instantiated using for factory', function () {
+        $blockSupports = BlockSupports::for('core/image');
+        expect($blockSupports)->toBeInstanceOf(BlockSupports::class);
+        expect($blockSupports->getBlockName())->toBe('core/image');
+    });
+
     it('validates block name format in constructor', function () {
         expect(function () {
             new BlockSupports('invalid-block');

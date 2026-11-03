@@ -7,23 +7,17 @@ use RalfHortt\ServiceContracts\ServiceContract;
 class BlockStyles implements ServiceContract
 {
     /**
-     * Styles to remove by block name.
-     *
      * @var array<string, array<string>>
      */
     protected array $stylesToRemove = [];
 
     /**
-     * Styles to add by block name.
-     *
      * @var array<string, array<array{name: string, label?: string}>>
      */
     protected array $stylesToAdd = [];
 
     /**
-     * Create a new BlockStyles instance.
-     *
-     * @param array<string, array<array{name: string, label?: string}>> $styles Optional initial styles by block name
+     * @param array<string, array<array{name: string, label?: string}>> $styles
      */
     public function __construct(array $styles = [])
     {
@@ -31,15 +25,12 @@ class BlockStyles implements ServiceContract
     }
 
     /**
-     * Add a style to a block.
-     *
-     * @param string                              $blockName The block name (namespace/name format)
-     * @param array{name: string, label?: string} $style     The style configuration
-     *
-     * @return self
+     * @param array{name: string, label?: string} $style
      */
     public function add(string $blockName, array $style): self
     {
+        BlockName::validate($blockName);
+
         if (!isset($this->stylesToAdd[$blockName])) {
             $this->stylesToAdd[$blockName] = [];
         }
@@ -50,12 +41,15 @@ class BlockStyles implements ServiceContract
     }
 
     /**
-     * Add multiple styles to a block.
-     *
-     * @param string                                     $blockName The block name (namespace/name format)
-     * @param array<array{name: string, label?: string}> $styles    Array of style configurations
-     *
-     * @return self
+     * @param array{name: string, label?: string} $style
+     */
+    public function addStyle(string $blockName, array $style): self
+    {
+        return $this->add($blockName, $style);
+    }
+
+    /**
+     * @param array<array{name: string, label?: string}> $styles
      */
     public function addStyles(string $blockName, array $styles): self
     {
@@ -66,16 +60,10 @@ class BlockStyles implements ServiceContract
         return $this;
     }
 
-    /**
-     * Remove a specific style from a block.
-     *
-     * @param string $blockName The block name (namespace/name format)
-     * @param string $styleName The style name to remove
-     *
-     * @return self
-     */
     public function remove(string $blockName, string $styleName): self
     {
+        BlockName::validate($blockName);
+
         if (!isset($this->stylesToRemove[$blockName])) {
             $this->stylesToRemove[$blockName] = [];
         }
@@ -85,42 +73,48 @@ class BlockStyles implements ServiceContract
         return $this;
     }
 
-    /**
-     * Remove all styles from a block.
-     *
-     * @param string $blockName The block name (namespace/name format)
-     *
-     * @return self
-     */
+    public function removeStyle(string $blockName, string $styleName): self
+    {
+        return $this->remove($blockName, $styleName);
+    }
+
     public function removeAll(string $blockName): self
     {
+        BlockName::validate($blockName);
         $this->stylesToRemove[$blockName] = ['*'];
 
         return $this;
     }
 
-    /**
-     * Register the style removal filter with WordPress.
-     *
-     * @return void
-     */
+    public function removeAllStyles(string $blockName): self
+    {
+        return $this->removeAll($blockName);
+    }
+
     public function register(): void
     {
         \add_filter('block_type_metadata_settings', [$this, 'filterBlockMetadata']);
     }
 
     /**
-     * Filter block metadata to remove core registered styles.
+     * @param array<string, mixed> $metadata
      *
-     * @param array<string, mixed> $metadata The block type metadata
-     *
-     * @return array<string, mixed> The filtered metadata
+     * @return array<string, mixed>
      */
     public function filterBlockMetadata(array $metadata): array
     {
         $blockName = $metadata['name'] ?? '';
 
-        // Filter out styles from metadata
+        if (isset($this->stylesToAdd[$blockName]) && $this->stylesToAdd[$blockName] !== []) {
+            if (!isset($metadata['styles']) || !is_array($metadata['styles'])) {
+                $metadata['styles'] = [];
+            }
+
+            foreach ($this->stylesToAdd[$blockName] as $style) {
+                $metadata['styles'][] = $style;
+            }
+        }
+
         if (isset($this->stylesToRemove[$blockName])) {
             $toRemove = $this->stylesToRemove[$blockName];
 
@@ -130,13 +124,11 @@ class BlockStyles implements ServiceContract
                     function ($style) use ($toRemove) {
                         $styleName = $style['name'] ?? '';
 
-                        // If removing all
-                        if (in_array('*', $toRemove)) {
+                        if (in_array('*', $toRemove, true)) {
                             return false;
                         }
 
-                        // Remove if in the removal list
-                        return !in_array($styleName, $toRemove);
+                        return !in_array($styleName, $toRemove, true);
                     }
                 );
             }

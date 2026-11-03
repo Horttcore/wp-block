@@ -28,39 +28,20 @@ class BlockSupports implements ServiceContract
     protected array $supportsToRemove = [];
 
     /**
-     * Create a new BlockSupports instance for a specific block.
-     *
-     * @param string $blockName The block name in 'namespace/name' format (e.g., 'core/button')
-     *
+     * @throws \InvalidArgumentException If block name format is invalid
+     */
+    public static function for(string $blockName): self
+    {
+        return new self($blockName);
+    }
+
+    /**
      * @throws \InvalidArgumentException If block name format is invalid
      */
     public function __construct(string $blockName)
     {
-        self::validateBlockName($blockName);
+        BlockName::validate($blockName);
         $this->blockName = $blockName;
-    }
-
-    /**
-     * Validate block name format.
-     *
-     * @param string $blockName The block name to validate
-     *
-     * @throws \InvalidArgumentException If block name format is invalid
-     */
-    private static function validateBlockName(string $blockName): void
-    {
-        if (!str_contains($blockName, '/')) {
-            throw new \InvalidArgumentException(
-                sprintf('Invalid block name "%s". Block names must be in "namespace/name" format.', $blockName)
-            );
-        }
-
-        $parts = explode('/', $blockName);
-        if (count($parts) !== 2 || empty($parts[0]) || empty($parts[1])) {
-            throw new \InvalidArgumentException(
-                sprintf('Invalid block name "%s". Block names must be in "namespace/name" format.', $blockName)
-            );
-        }
     }
 
     /**
@@ -80,11 +61,9 @@ class BlockSupports implements ServiceContract
     public function add(array $supports): self
     {
         foreach ($supports as $key => $value) {
-            if (is_string($key)) {
-                // Associative: 'color' => true or 'color' => [...]
+            if (is_string($key) && (is_bool($value) || is_array($value))) {
                 $this->supportsToAdd[$key] = $value;
-            } else {
-                // Indexed: just the string name, treated as boolean true
+            } elseif (is_int($key) && is_string($value)) {
                 $this->supportsToAdd[$value] = true;
             }
         }

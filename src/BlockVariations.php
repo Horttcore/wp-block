@@ -21,24 +21,20 @@ class BlockVariations implements ServiceContract
     protected array $variationsToAdd = [];
 
     /**
-     * Create a new BlockVariations instance.
-     *
-     * @param array<string, array<array{name: string, title: string, description?: string, attributes?: array, innerBlocks?: array, scope?: array, isDefault?: bool}>> $variationsToAdd Optional initial variations by block name
+     * @param array<string, array<array{name: string, title: string, description?: string, attributes?: array, innerBlocks?: array, scope?: array, isDefault?: bool}>> $variationsToAdd
      */
-    public function __construct(protected array $variationsToAdd = [])
+    public function __construct(array $variationsToAdd = [])
     {
+        $this->variationsToAdd = $variationsToAdd;
     }
 
     /**
-     * Add a variation to a block.
-     *
-     * @param string                                                                                                                             $blockName The block name (namespace/name format)
-     * @param array{name: string, title: string, description?: string, attributes?: array, innerBlocks?: array, scope?: array, isDefault?: bool} $variation The variation configuration
-     *
-     * @return self
+     * @param array{name: string, title: string, description?: string, attributes?: array, innerBlocks?: array, scope?: array, isDefault?: bool} $variation
      */
     public function add(string $blockName, array $variation): self
     {
+        BlockName::validate($blockName);
+
         if (!isset($this->variationsToAdd[$blockName])) {
             $this->variationsToAdd[$blockName] = [];
         }
@@ -49,12 +45,15 @@ class BlockVariations implements ServiceContract
     }
 
     /**
-     * Add multiple variations to a block.
-     *
-     * @param string                                                                                                                                    $blockName  The block name (namespace/name format)
-     * @param array<array{name: string, title: string, description?: string, attributes?: array, innerBlocks?: array, scope?: array, isDefault?: bool}> $variations Array of variation configurations
-     *
-     * @return self
+     * @param array{name: string, title: string, description?: string, attributes?: array, innerBlocks?: array, scope?: array, isDefault?: bool} $variation
+     */
+    public function addVariation(string $blockName, array $variation): self
+    {
+        return $this->add($blockName, $variation);
+    }
+
+    /**
+     * @param array<array{name: string, title: string, description?: string, attributes?: array, innerBlocks?: array, scope?: array, isDefault?: bool}> $variations
      */
     public function addVariations(string $blockName, array $variations): self
     {
@@ -65,16 +64,10 @@ class BlockVariations implements ServiceContract
         return $this;
     }
 
-    /**
-     * Remove a specific variation from a block.
-     *
-     * @param string $blockName     The block name (namespace/name format)
-     * @param string $variationName The variation name to remove
-     *
-     * @return self
-     */
     public function remove(string $blockName, string $variationName): self
     {
+        BlockName::validate($blockName);
+
         if (!isset($this->variationsToRemove[$blockName])) {
             $this->variationsToRemove[$blockName] = [];
         }
@@ -84,25 +77,24 @@ class BlockVariations implements ServiceContract
         return $this;
     }
 
-    /**
-     * Remove all variations from a block.
-     *
-     * @param string $blockName The block name (namespace/name format)
-     *
-     * @return self
-     */
+    public function removeVariation(string $blockName, string $variationName): self
+    {
+        return $this->remove($blockName, $variationName);
+    }
+
     public function removeAll(string $blockName): self
     {
+        BlockName::validate($blockName);
         $this->variationsToRemove[$blockName] = ['*'];
 
         return $this;
     }
 
-    /**
-     * Register the variation filters with WordPress.
-     *
-     * @return void
-     */
+    public function removeAllVariations(string $blockName): self
+    {
+        return $this->removeAll($blockName);
+    }
+
     public function register(): void
     {
         \add_filter('block_type_metadata_settings', [$this, 'filterBlockMetadata']);
@@ -110,17 +102,14 @@ class BlockVariations implements ServiceContract
     }
 
     /**
-     * Filter block metadata to remove core registered variations.
+     * @param array<string, mixed> $metadata
      *
-     * @param array<string, mixed> $metadata The block type metadata
-     *
-     * @return array<string, mixed> The filtered metadata
+     * @return array<string, mixed>
      */
     public function filterBlockMetadata(array $metadata): array
     {
         $blockName = $metadata['name'] ?? '';
 
-        // Filter out variations from metadata
         if (isset($this->variationsToRemove[$blockName])) {
             $toRemove = $this->variationsToRemove[$blockName];
 
@@ -130,13 +119,11 @@ class BlockVariations implements ServiceContract
                     function ($variation) use ($toRemove) {
                         $variationName = $variation['name'] ?? '';
 
-                        // If removing all
-                        if (in_array('*', $toRemove)) {
+                        if (in_array('*', $toRemove, true)) {
                             return false;
                         }
 
-                        // Remove if in the removal list
-                        return !in_array($variationName, $toRemove);
+                        return !in_array($variationName, $toRemove, true);
                     }
                 );
             }
@@ -146,25 +133,23 @@ class BlockVariations implements ServiceContract
     }
 
     /**
-     * Register custom variations for a block type.
+     * @param array<array<string, mixed>> $variations
      *
-     * @param array<array<string, mixed>> $variations The existing variations
-     * @param object                      $blockType  The block type object
-     *
-     * @return array<array<string, mixed>> The merged variations array
+     * @return array<array<string, mixed>>
      */
-    public function registerBlockVariations(array $variations, $blockType): array
+    public function registerBlockVariations(array $variations, object $blockType): array
     {
-        // Check if we have variations to add for this specific block type
-        if (!isset($this->variationsToAdd[$blockType->name])) {
+        if (!property_exists($blockType, 'name') || !is_string($blockType->name)) {
             return $variations;
         }
 
-        // Get our variations for this block type
-        $blockVariations = $this->variationsToAdd[$blockType->name];
+        $blockName = $blockType->name;
 
-        // Filter out invalid variations and merge with existing variations
-        foreach ($blockVariations as $variation) {
+        if (!isset($this->variationsToAdd[$blockName])) {
+            return $variations;
+        }
+
+        foreach ($this->variationsToAdd[$blockName] as $variation) {
             if ($this->isValidVariation($variation)) {
                 $variations[] = $variation;
             }
@@ -174,11 +159,7 @@ class BlockVariations implements ServiceContract
     }
 
     /**
-     * Validate that a variation has the required fields.
-     *
-     * @param array<string, mixed> $variation The variation to validate
-     *
-     * @return bool True if valid, false otherwise
+     * @param array<string, mixed> $variation
      */
     protected function isValidVariation(array $variation): bool
     {

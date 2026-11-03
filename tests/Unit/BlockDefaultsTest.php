@@ -91,12 +91,13 @@ describe('BlockDefaults', function () {
             expect($defaults->getDefaults())->not->toHaveKey('test/block');
         });
 
-        it('supports fluent interface with register()', function () {
-            $result = BlockDefaults::for('test/block')
-                ->set('color', 'red')
-                ->register();
+        it('supports fluent interface through set before register()', function () {
+            $defaults = BlockDefaults::for('test/block')
+                ->set('color', 'red');
 
-            expect($result)->toBeInstanceOf(BlockDefaults::class);
+            $defaults->register();
+
+            expect($defaults)->toBeInstanceOf(BlockDefaults::class);
         });
 
         it('can set null as value', function () {
@@ -394,8 +395,8 @@ describe('BlockDefaults', function () {
         it('configures core/image with static defaults', function () {
             $defaults = BlockDefaults::for('core/image')
                 ->set('sizeSlug', 'large')
-                ->set('linkDestination', 'media')
-                ->register();
+                ->set('linkDestination', 'media');
+            $defaults->register();
 
             expect($defaults->getDefaults()['core/image'])->toBe([
                 'sizeSlug'        => 'large',
@@ -405,8 +406,8 @@ describe('BlockDefaults', function () {
 
         it('configures core/media-text with callback for dynamic values', function () {
             $defaults = BlockDefaults::for('core/media-text')
-                ->set('verticalAlignment', fn ($metadata) => 'top')
-                ->register();
+                ->set('verticalAlignment', fn ($metadata) => 'top');
+            $defaults->register();
 
             $callback = $defaults->getDefaults()['core/media-text']['verticalAlignment'];
             expect($callback)->toBeCallable();
@@ -414,8 +415,8 @@ describe('BlockDefaults', function () {
 
         it('configures multiple blocks with same attributes', function () {
             $defaults = BlockDefaults::for(['core/media-text', 'core/image'])
-                ->set('imageSize', 'full')
-                ->register();
+                ->set('imageSize', 'full');
+            $defaults->register();
 
             $allDefaults = $defaults->getDefaults();
             expect($allDefaults['core/media-text'])->toBe(['imageSize' => 'full']);
@@ -424,10 +425,10 @@ describe('BlockDefaults', function () {
 
         it('configures multiple blocks with same and different attributes', function () {
             $defaults = BlockDefaults::for(['core/image', 'core/paragraph'])
-                ->set('className', 'custom-block') // Both get this
-                ->set('core/image', 'sizeSlug', 'large') // Only image
-                ->set('core/paragraph', 'fontSize', 'large') // Only paragraph
-                ->register();
+                ->set('className', 'custom-block')
+                ->set('core/image', 'sizeSlug', 'large')
+                ->set('core/paragraph', 'fontSize', 'large');
+            $defaults->register();
 
             $allDefaults = $defaults->getDefaults();
             expect($allDefaults['core/image'])->toBe([
@@ -443,10 +444,9 @@ describe('BlockDefaults', function () {
         it('uses callback for conditional logic', function () {
             $defaults = BlockDefaults::for('core/image')
                 ->set('sizeSlug', function ($metadata) {
-                    // Example: Different sizes based on context
                     return $metadata['customData'] ?? 'large';
-                })
-                ->register();
+                });
+            $defaults->register();
 
             $metadata = [
                 'name'       => 'core/image',

@@ -23,8 +23,8 @@ class BlockPatterns implements ServiceContract
      */
     public function register(): void
     {
-        add_action('after_setup_theme', function () {
-            add_action('init', [$this, 'registerCategories']);
+        add_action('init', function () {
+            $this->registerCategories($this->patternCategories);
         });
     }
 
@@ -51,7 +51,7 @@ class BlockPatterns implements ServiceContract
     /**
      * Register categories callback.
      */
-    protected function registerCategories(array $categories = []): void
+    public function registerCategories(array $categories = []): void
     {
         foreach ($categories as $slug => $label) {
             register_block_pattern_category($slug, ['label' => $label]);

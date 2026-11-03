@@ -22,33 +22,36 @@ class BlockDefaults implements ServiceContract
     protected ?array $focusedBlocks = null;
 
     /**
-     * Create a new BlockDefaults instance.
-     *
-     * @param string|array<string>|null $blocks Optional block name(s) to focus on
-     *                                          Single: 'block/name'
-     *                                          Multiple: ['block/one', 'block/two']
-     *                                          Null: Create empty instance
+     * @param string|array<string> $blocks Single block name or list of block names
      *
      * @throws \InvalidArgumentException If block name format is invalid
      */
-    public function __construct(string|array|null $blocks = null)
+    public static function for(string|array $blocks): self
+    {
+        return new self($blocks);
+    }
+
+    /**
+     * @param string|array<string>|null $blocks
+     *
+     * @throws \InvalidArgumentException If block name format is invalid
+     */
+    private function __construct(string|array|null $blocks = null)
     {
         if ($blocks === null) {
             return;
         }
 
         if (is_string($blocks)) {
-            // Single-block mode
-            self::validateBlockName($blocks);
+            BlockName::validate($blocks);
             $this->focusedBlocks = [$blocks];
             $this->blockDefaults[$blocks] = [];
         } else {
-            // Multi-block mode: multiple block names
             foreach ($blocks as $blockName) {
                 if (!is_string($blockName)) {
                     throw new \InvalidArgumentException('All block names must be strings');
                 }
-                self::validateBlockName($blockName);
+                BlockName::validate($blockName);
             }
 
             $this->focusedBlocks = $blocks;
@@ -59,36 +62,11 @@ class BlockDefaults implements ServiceContract
     }
 
     /**
-     * Validate block name format.
-     *
-     * @param string $blockName The block name to validate
-     *
-     * @throws \InvalidArgumentException If block name format is invalid
-     */
-    private static function validateBlockName(string $blockName): void
-    {
-        if (!str_contains($blockName, '/')) {
-            throw new \InvalidArgumentException(
-                sprintf('Invalid block name "%s". Block names must be in "namespace/name" format.', $blockName)
-            );
-        }
-
-        $parts = explode('/', $blockName);
-        if (count($parts) !== 2 || empty($parts[0]) || empty($parts[1])) {
-            throw new \InvalidArgumentException(
-                sprintf('Invalid block name "%s". Block names must be in "namespace/name" format.', $blockName)
-            );
-        }
-    }
-
-    /**
      * Register the override by hooking into WordPress.
      */
-    public function register(): self
+    public function register(): void
     {
         add_filter('block_type_metadata', [$this, 'overrideAttributes'], 10, 1);
-
-        return $this;
     }
 
     /**

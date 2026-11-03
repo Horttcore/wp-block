@@ -43,6 +43,7 @@ class BlockManager implements ServiceContract
      */
     public function __construct(string $blockName)
     {
+        BlockName::validate($blockName);
         $this->blockName = $blockName;
         $this->supportManager = new BlockSupports($blockName);
         $this->styleManager = new BlockStyles();
@@ -100,7 +101,7 @@ class BlockManager implements ServiceContract
      */
     public function addStyle(array $style): self
     {
-        $this->styleManager->add($this->blockName, $style);
+        $this->styleManager->addStyle($this->blockName, $style);
 
         return $this;
     }
@@ -128,7 +129,7 @@ class BlockManager implements ServiceContract
      */
     public function removeStyle(string $styleName): self
     {
-        $this->styleManager->remove($this->blockName, $styleName);
+        $this->styleManager->removeStyle($this->blockName, $styleName);
 
         return $this;
     }
@@ -140,7 +141,7 @@ class BlockManager implements ServiceContract
      */
     public function removeAllStyles(): self
     {
-        $this->styleManager->removeAll($this->blockName);
+        $this->styleManager->removeAllStyles($this->blockName);
 
         return $this;
     }
@@ -156,7 +157,7 @@ class BlockManager implements ServiceContract
      */
     public function addVariation(array $variation): self
     {
-        $this->variationManager->add($this->blockName, $variation);
+        $this->variationManager->addVariation($this->blockName, $variation);
 
         return $this;
     }
@@ -184,7 +185,7 @@ class BlockManager implements ServiceContract
      */
     public function removeVariation(string $variationName): self
     {
-        $this->variationManager->remove($this->blockName, $variationName);
+        $this->variationManager->removeVariation($this->blockName, $variationName);
 
         return $this;
     }
@@ -196,7 +197,7 @@ class BlockManager implements ServiceContract
      */
     public function removeAllVariations(): self
     {
-        $this->variationManager->removeAll($this->blockName);
+        $this->variationManager->removeAllVariations($this->blockName);
 
         return $this;
     }

@@ -49,12 +49,18 @@ abstract class Block implements ServiceContract
      */
     protected function getBlockJson(): string
     {
-        $path = plugin_dir_path(__FILE__);
-        $path = str_replace(WP_PLUGIN_DIR, '', $path);
-        $path = array_filter(explode(DIRECTORY_SEPARATOR, $path));
-        $path = array_shift($path);
+        if (str_starts_with($this->blockJson, '/') || preg_match('#^[A-Za-z]:[\\\\/]#', $this->blockJson) === 1) {
+            return $this->blockJson;
+        }
 
-        return WP_PLUGIN_DIR.DIRECTORY_SEPARATOR.$path.DIRECTORY_SEPARATOR.$this->blockJson;
+        $fileName = (new \ReflectionClass(static::class))->getFileName();
+        if ($fileName === false) {
+            throw new \RuntimeException('Could not resolve block class file path.');
+        }
+
+        $directory = dirname($fileName);
+
+        return $directory.DIRECTORY_SEPARATOR.$this->blockJson;
     }
 
     /**
